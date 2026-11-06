@@ -1,0 +1,71 @@
+body {
+  background-color: #f4f6f8;
+  color: #16202b;
+}
+
+.bg-gepiseg {
+  background-color: #1f6f4e;
+}
+
+.btn-gepiseg {
+  background-color: #1f6f4e;
+  color: #fff;
+}
+
+.btn-gepiseg:hover {
+  background-color: #17543b;
+  color: #fff;
+}
+
+.btn-outline-gepiseg {
+  color: #1f6f4e;
+  border-color: #1f6f4e;
+}
+
+.btn-outline-gepiseg:hover {
+  background-color: #1f6f4e;
+  color: #fff;
+}
+
+.carousel-item-destaque {
+  min-height: 260px;
+  background-size: cover;
+  background-position: center;
+}
+
+.carousel-overlay {
+  background-color: rgba(22, 32, 43, 0.85);
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  padding: 2rem 3.5rem;
+}
+
+.card-custom {
+  border: 1px solid #e2e6ec;
+}
+
+.card-img-artigo {
+  height: 160px;
+  object-fit: cover;
+}
+
+.avatar-pesquisador {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.badge-tema {
+  background-color: #1f6f4e;
+  color: #fff;
+}
+
+.page-link {
+  color: #1f6f4e;
+}
+
+.page-item.active .page-link {
+  background-color: #1f6f4e;
+  border-color: #1f6f4e;
+}

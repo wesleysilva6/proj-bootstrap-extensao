@@ -1,0 +1,1450 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEPISEG — Referência da API</title>
+<style>
+  /* Tema claro é o padrão. O escuro entra de duas formas: pela preferência do
+     sistema, ou pelo botão — que grava `data-tema` no <html> e vence o sistema
+     nas duas direções. */
+  :root {
+    --tinta:    #16202b;
+    --tinta-2:  #55626f;
+    --tinta-3:  #8a949e;
+    --papel:    #ffffff;
+    --fundo:    #f4f6f8;
+    --linha:    #e2e6ec;
+    --destaque: #1f6f4e;
+    --azul:     #2c5282;
+    --alerta:   #9a5b12;
+    --erro:     #a32b2b;
+    --codigo:   #f6f8fa;
+    --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-tema="claro"]) {
+      --tinta:    #e4e9ee;
+      --tinta-2:  #a8b3be;
+      --tinta-3:  #78838f;
+      --papel:    #151b22;
+      --fundo:    #0e1318;
+      --linha:    #262f39;
+      --destaque: #4bb98a;
+      --azul:     #6ba3e0;
+      --alerta:   #d79b4a;
+      --erro:     #e06a6a;
+      --codigo:   #1b2229;
+    }
+  }
+
+  :root[data-tema="escuro"] {
+    --tinta:    #e4e9ee;
+    --tinta-2:  #a8b3be;
+    --tinta-3:  #78838f;
+    --papel:    #151b22;
+    --fundo:    #0e1318;
+    --linha:    #262f39;
+    --destaque: #4bb98a;
+    --azul:     #6ba3e0;
+    --alerta:   #d79b4a;
+    --erro:     #e06a6a;
+    --codigo:   #1b2229;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--fundo);
+    color: var(--tinta);
+    font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--destaque); }
+
+  /* ---------- topo ---------- */
+
+  header.capa {
+    border-bottom: 1px solid var(--linha);
+    background: var(--papel);
+    padding: 22px 28px 18px;
+  }
+  .dentro { max-width: 1120px; margin: 0 auto; }
+  header.capa h1 { margin: 0; font-size: 20px; letter-spacing: -.01em; }
+  header.capa p {
+    margin: 5px 0 0;
+    color: var(--tinta-3);
+    font-size: 13.5px;
+  }
+  header.capa .versao { font-family: var(--mono); font-size: 12px; }
+
+  .barra {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--papel);
+    border-bottom: 1px solid var(--linha);
+    padding: 9px 28px;
+  }
+  .barra .dentro { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .barra .espaco { flex: 1; }
+
+  input, select, button { font: inherit; font-size: 13px; color: var(--tinta); }
+  input[type="text"], input[type="search"], input[type="number"],
+  input[type="date"], select {
+    background: var(--papel);
+    border: 1px solid var(--linha);
+    border-radius: 3px;
+    padding: 5px 7px;
+    max-width: 100%;
+  }
+  input[type="search"] { min-width: 220px; }
+  input:focus, select:focus, button:focus-visible {
+    outline: 2px solid var(--destaque);
+    outline-offset: 1px;
+  }
+
+  button.acao {
+    background: var(--destaque);
+    color: #fff;
+    border: 0;
+    border-radius: 3px;
+    padding: 6px 14px;
+    cursor: pointer;
+  }
+  :root[data-tema="escuro"] button.acao { color: #0e1318; font-weight: 600; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-tema="claro"]) button.acao { color: #0e1318; font-weight: 600; }
+  }
+  button.suave {
+    background: transparent;
+    color: var(--tinta-2);
+    border: 1px solid var(--linha);
+    border-radius: 3px;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  button.suave:hover { background: var(--codigo); color: var(--tinta); }
+
+  /* ---------- layout ---------- */
+
+  .pagina {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 22px 28px 80px;
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    gap: 26px;
+    align-items: start;
+  }
+
+  nav.indice { position: sticky; top: 54px; font-size: 13px; }
+  nav.indice .grupo {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--tinta-3);
+    padding: 14px 0 4px;
+  }
+  nav.indice .grupo:first-child { padding-top: 0; }
+  nav.indice a {
+    display: block;
+    padding: 3px 0;
+    color: var(--tinta-2);
+    text-decoration: none;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  nav.indice a:hover { color: var(--destaque); }
+
+  main { min-width: 0; }
+
+  h2.secao {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--tinta-3);
+    font-weight: 600;
+    margin: 28px 0 10px;
+  }
+  h2.secao:first-child { margin-top: 0; }
+
+  p.intro { color: var(--tinta-2); font-size: 13.5px; margin: 6px 0 12px; max-width: 76em; }
+
+  code {
+    font-family: var(--mono);
+    font-size: .88em;
+    color: var(--tinta);
+  }
+
+  pre {
+    background: var(--codigo);
+    border: 1px solid var(--linha);
+    border-radius: 4px;
+    padding: 11px 13px;
+    overflow-x: auto;
+    margin: 8px 0;
+  }
+  pre code { font-size: 12.5px; line-height: 1.5; color: var(--tinta-2); }
+
+  /* ---------- cartão de operação ---------- */
+
+  .op {
+    background: var(--papel);
+    border: 1px solid var(--linha);
+    border-radius: 4px;
+    margin: 7px 0;
+  }
+  .op > .cabeca {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    cursor: pointer;
+  }
+  .op > .cabeca:hover { background: var(--codigo); }
+  .op.aberta > .cabeca { border-bottom: 1px solid var(--linha); }
+
+  .pill {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--destaque);
+    border: 1px solid var(--destaque);
+    border-radius: 3px;
+    padding: 2px 6px;
+    flex: none;
+  }
+  .op.util .pill { color: var(--azul); border-color: var(--azul); }
+  .op.fabrica .pill { color: var(--alerta); border-color: var(--alerta); }
+
+  .op .assinatura { font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
+  .op .resumo { color: var(--tinta-3); font-size: 12.5px; flex: 1; text-align: right; }
+  .op .seta { color: var(--tinta-3); font-size: 10px; flex: none; }
+  .op.aberta .seta { transform: rotate(180deg); }
+
+  .op > .corpo { display: none; padding: 14px 12px 16px; }
+  .op.aberta > .corpo { display: block; }
+
+  h4.rotulo {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--tinta-3);
+    margin: 16px 0 7px;
+  }
+  h4.rotulo:first-child { margin-top: 0; }
+
+  /* ---------- parâmetros ---------- */
+
+  .params { display: grid; gap: 10px 16px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  .campo label.nome {
+    display: block;
+    font-family: var(--mono);
+    font-size: 12px;
+    margin-bottom: 3px;
+  }
+  .campo label.nome .tipo { color: var(--tinta-3); font-size: 10.5px; }
+  .campo input, .campo select { width: 100%; }
+  .campo .ajuda { font-size: 11.5px; color: var(--tinta-3); margin-top: 2px; }
+
+  .botoes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+
+  /* ---------- resposta ---------- */
+
+  .resposta { border: 1px solid var(--linha); border-radius: 4px; overflow: hidden; }
+  .resposta .topo {
+    background: var(--codigo);
+    border-bottom: 1px solid var(--linha);
+    padding: 6px 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    align-items: center;
+    color: var(--tinta-3);
+  }
+  .status {
+    border: 1px solid var(--destaque);
+    color: var(--destaque);
+    border-radius: 3px;
+    padding: 1px 7px;
+  }
+  .status.ruim { border-color: var(--erro); color: var(--erro); }
+  .status.neutro { border-color: var(--linha); color: var(--tinta-3); }
+  .resposta .json {
+    margin: 0;
+    padding: 11px 13px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: pre;
+    overflow: auto;
+    max-height: 340px;
+    color: var(--tinta-2);
+    background: var(--papel);
+  }
+  .resposta .json.alto { max-height: none; }
+
+  /* ---------- tabelas ---------- */
+
+  .rolar { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 420px; }
+  th, td { text-align: left; padding: 5px 10px; border-bottom: 1px solid var(--linha); vertical-align: top; }
+  th {
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--tinta-3);
+    font-weight: 600;
+  }
+  td.v { color: var(--tinta-3); font-family: var(--mono); font-size: 11.5px; }
+
+  footer.rodape {
+    border-top: 1px solid var(--linha);
+    padding: 16px 28px 40px;
+    font-size: 12.5px;
+    color: var(--tinta-3);
+  }
+
+  .escondido { display: none !important; }
+
+  @media (max-width: 860px) {
+    .pagina { grid-template-columns: 1fr; padding: 18px 14px 60px; }
+    nav.indice { position: static; }
+    header.capa, .barra, footer.rodape { padding-left: 14px; padding-right: 14px; }
+    .op .resumo { display: none; }
+  }
+
+  /* ---------- impressão / PDF ---------- */
+
+  @media print {
+    @page { margin: 12mm; }
+    :root { --papel: #fff; --fundo: #fff; --tinta: #16202b; --tinta-2: #4a5765; --linha: #d5dbe2; --codigo: #f6f8fa; }
+    body { background: #fff; font-size: 10pt; }
+    .barra, nav.indice, .botoes, .flutuante { display: none !important; }
+    .pagina { display: block; padding: 14px 0 0; }
+    .op { page-break-inside: avoid; }
+    .op > .corpo { display: block !important; }
+    .op .seta { display: none; }
+    .resposta .json { max-height: none; }
+    pre, table { page-break-inside: avoid; }
+  }
+
+  .flutuante {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 30;
+  }
+  .flutuante button {
+    background: var(--papel);
+    border: 1px solid var(--linha);
+    color: var(--tinta-2);
+    border-radius: 4px;
+    padding: 8px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,.12);
+  }
+</style>
+</head>
+<body>
+
+<header class="capa">
+  <div class="dentro">
+    <h1>GEPISEG — Referência da API</h1>
+    <p>
+      Toda função de <code>gepiseg-api.js</code>: filtros aceitos, JSON devolvido,
+      e execução ao vivo nesta página. <span class="versao" id="versao">—</span>
+    </p>
+  </div>
+</header>
+
+<div class="barra">
+  <div class="dentro">
+    <input type="search" id="buscaOp" placeholder="filtrar operações…" autocomplete="off">
+    <span class="espaco"></span>
+    <button class="suave" id="abrirTudo">Abrir todas</button>
+    <button class="suave" id="fecharTudo">Fechar todas</button>
+    <button class="suave" id="btnTema" title="Alternar tema">Tema escuro</button>
+  </div>
+</div>
+
+<div class="pagina">
+  <nav class="indice" id="indice"></nav>
+
+  <main>
+    <h2 class="secao">Instância</h2>
+<pre><code>&lt;script src="js/dados.js"&gt;&lt;/script&gt;
+&lt;script src="js/gepiseg-api.js"&gt;&lt;/script&gt;
+
+const api = GepisegAPI.criar();        // ou: await GepisegAPI.carregar();
+api.artigos.listar({ q: 'phishing' }).then(r =&gt; r.results);</code></pre>
+    <p class="intro">
+      Listagem devolve <code>{ info, results }</code>; item devolve o objeto cru;
+      relação viaja como caminho de arquivo; filtro sem resultado é 404 com
+      <code>{ error }</code>. A lib não renomeia nem calcula campo — o JSON já é a resposta.
+    </p>
+
+    <div id="ops"></div>
+
+    <h2 class="secao" id="s-esquemas">Esquemas</h2>
+    <p class="intro">Inferido de um registro real, agora.</p>
+    <div class="op" id="esq-pesquisador">
+      <div class="cabeca"><span class="pill">tipo</span><span class="assinatura">pesquisador</span><span class="resumo">campos do recurso</span><span class="seta">▾</span></div>
+      <div class="corpo"><div class="rolar" id="esquemaPesquisador"></div></div>
+    </div>
+    <div class="op" id="esq-artigo">
+      <div class="cabeca"><span class="pill">tipo</span><span class="assinatura">artigo</span><span class="resumo">campos do recurso</span><span class="seta">▾</span></div>
+      <div class="corpo"><div class="rolar" id="esquemaArtigo"></div></div>
+    </div>
+
+    <h2 class="secao" id="s-erros">Erros</h2>
+    <div class="rolar">
+      <table>
+        <thead><tr><th>Situação</th><th>Status</th><th>Corpo</th></tr></thead>
+        <tbody>
+          <tr><td>Filtro não acha nada</td><td class="v">404</td><td class="v">{ "error": "Não há nada aqui" }</td></tr>
+          <tr><td><code>porId</code> com id inexistente</td><td class="v">404</td><td class="v">{ "error": "Artigo não encontrado" }</td></tr>
+          <tr><td><code>seguir</code> com tipo desconhecido</td><td class="v">404</td><td class="v">{ "error": "Recurso não encontrado" }</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="intro">Chega como rejeição da Promise, com <code>e.status</code> e <code>e.corpo</code>.</p>
+  </main>
+</div>
+
+<footer class="rodape">
+  <div class="dentro">
+    GEPISEG · UniAlfa — veja também <a href="tutorial.html">tutorial.html</a> e <a href="LEIAME.md">LEIAME.md</a>.
+  </div>
+</footer>
+
+<div class="flutuante">
+  <button id="btnPdf">Salvar como PDF</button>
+</div>
+
+<script>
+/* Gerado por gerar.mjs — nao edite a mao. */
+window.GEPISEG_DADOS = {
+  pesquisadores: [{"id":1,"nome":"Ana Clara Figueiredo","titulacao":"Doutora","cargo":"Professora Adjunta","instituicao":"UniAlfa","unidade":"Grupo de Estudo e Pesquisa em Segurança da Informação (GEPISEG)","areas":["Segurança de Aplicações","DevSecOps"],"linhaPesquisa":"Automação de controles de segurança em esteiras de entrega contínua","bio":"Pesquisa como mover verificação de segurança para dentro do fluxo de desenvolvimento sem transformar o pipeline em gargalo. Coordena o eixo de segurança de aplicações do GEPISEG desde 2021.","email":"ana.clara@unialfa.edu.br","fotoSeed":"ana-clara-figueiredo","imagem":"https://api.dicebear.com/9.x/notionists/svg?seed=ana-clara-figueiredo&backgroundColor=2F6F4E&radius=50","iniciais":"AF","cor":"#2F6F4E","ingresso":"2018-03-01","ativo":true,"metricas":{"totalArtigos":7,"totalCitacoes":189,"indiceH":5,"comoAutorPrincipal":5,"primeiroAno":2023,"ultimoAno":2026},"artigos":[{"titulo":"Verificação de dependências em esteiras de entrega contínua: custo e cobertura","url":"json/artigo/1.json"},{"titulo":"SSRF em arquiteturas de microsserviços: do acesso interno ao roubo de credencial","url":"json/artigo/2.json"},{"titulo":"Escalonamento de privilégio por confusão de identidade em APIs REST","url":"json/artigo/8.json"},{"titulo":"Falsos positivos em análise estática: medindo o custo de atenção da equipe","url":"json/artigo/19.json"},{"titulo":"Segredos em repositório: detecção, rotação e o que fazer com o histórico","url":"json/artigo/25.json"},{"titulo":"Modelagem de ameaça leve para equipes pequenas","url":"json/artigo/26.json"},{"titulo":"Limitação de requisições em ambientes serverless: o contador que não é compartilhado","url":"json/artigo/27.json"}],"url":"json/pesquisador/1.json","created":"2018-06-12T12:30:00.000Z"},{"id":2,"nome":"Bruno Tavares Lemos","titulacao":"Doutor","cargo":"Professor Associado","instituicao":"UniAlfa","unidade":"Grupo de Estudo e Pesquisa em Segurança da Informação (GEPISEG)","areas":["Criptografia Aplicada","Protocolos Seguros"],"linhaPesquisa":"Implementações de criptografia resistentes a canal lateral em dispositivos restritos","bio":"Trabalha com a distância entre a criptografia que se prova no papel e a que roda em hardware barato. Orienta o subgrupo de criptografia aplicada.","email":"bruno.tavares@unialfa.edu.br","fotoSeed":"bruno-tavares-lemos","imagem":"https://api.dicebear.com/9.x/notionists/svg?seed=bruno-tavares-lemos&backgroundColor=8C4A2F&radius=50","iniciais":"BL","cor":"#8C4A2F","ingresso":"2019-03-01","ativo":true,"metricas":{"totalArtigos":4,"totalCitacoes":121,"indiceH":4,"comoAutorPrincipal":2,"primeiroAno":2024,"ultimoAno":2026},"artigos":[{"titulo":"Implementações de AES em microcontroladores: análise de consumo e canal lateral","url":"json/artigo/3.json"},{"titulo":"Troca de chaves pós-quântica em dispositivos restritos: viabilidade prática","url":"json/artigo/4.json"},{"titulo":"Identificação de funções criptográficas em binários sem símbolos","url":"json/artigo/23.json"},{"titulo":"Recuperação de chave a partir de despejo de memória em aplicações móveis","url":"json/artigo/30.json"}],"url":"json/pesquisador/2.json","created":"2019-11-23T12:30:00.000Z"},{"id":3,"nome":"Carolina Prado Nunes","titulacao":"Mestra","cargo":"Pesquisadora","instituicao":"UniAlfa","unidade":"Grupo de Estudo e Pesquisa em Segurança da Informação (GEPISEG)","areas":["Segurança em IoT","Redes"],"linhaPesquisa":"Superfície de ataque de dispositivos domésticos conectados","bio":"Mapeia o que dispositivos de consumo expõem na rede local quando ninguém está olhando. Mantém o laboratório de IoT do grupo.","email":"carolina.prado@unialfa.edu.br","fotoSeed":"carolina-prado-nunes","imagem":"https://api.dicebear.com/9.x/notionists/svg?seed=carolina-prado-nunes&backgroundColor=2C5282&radius=50","iniciais":"CN","cor":"#2C5282","ingresso":"2020-03-01","ativo":true,"metricas":{"totalArtigos":5,"totalCitacoes":103,"indiceH":4,"comoAutorPrincipal":3,"primeiroAno":2023,"ultimoAno":2026},"artigos":[{"titulo":"Troca de chaves pós-quântica em dispositivos restritos: viabilidade prática","url":"json/artigo/4.json"},{"titulo":"O que sua lâmpada conta sobre você: inferência de rotina a partir de tráfego doméstico","url":"json/artigo/5.json"},{"titulo":"Autenticação padrão de fábrica em dispositivos de consumo: levantamento em 120 modelos","url":"json/artigo/6.json"},{"titulo":"Limitação de requisições em ambientes serverless: o contador que não é compartilhado","url":"json/artigo/27.json"},{"titulo":"Segmentação de rede doméstica como mitigação para dispositivos não confiáveis","url":"json/artigo/28.json"}],"url":"json/pesquisador/3.json","created":"2020-04-07T12:30:00.000Z"},{"id":4,"nome":"Diego Albuquerque Rosa","titulacao":"Mestre","cargo":"Pesquisador","instituicao":"UniAlfa","unidade":"Grupo de Estudo e Pesquisa em Segurança da Informação (GEPISEG)","areas":["Teste de Intrusão","Red Team"],"linhaPesquisa":"Metodologias de teste de intrusão em aplicações web corporativas","bio":"Atua na ponte entre a academia e a operação: traz de engajamentos reais os padrões de falha que viram objeto de estudo no grupo.","email":"diego.albuquerque@unialfa.edu.br","fotoSeed":"diego-albuquerque-rosa","imagem":"https://api.dicebear.com/9.x/notionists/svg?seed=diego-albuquerque-rosa&backgroundColor=6B4E9B&radius=50","iniciais":"DR","cor":"#6B4E9B","ingresso":"2021-03-01","ativo":true,"metricas":{"totalArtigos":3,"totalCitacoes":107,"indiceH":3,"comoAutorPrincipal":2,"primeiroAno":2024,"ultimoAno":2025},"artigos":[{"titulo":"SSRF em arquiteturas de microsserviços: do acesso interno ao roubo de credencial","url":"json/artigo/2.json"},{"titulo":"Padrões recorrentes de falha em testes de intrusão: análise de 60 engajamentos","url":"json/artigo/7.json"},{"titulo":"Escalonamento de privilégio por confusão de identidade em APIs REST","url":"json/artigo/8.json"}],"url":"json/pesquisador/4.json","created":"2021-09-18T12:30:00.000Z"},{"id":5,"nome":"Eduarda Mattos Vieira","titulacao":"Doutora","cargo":"Professora Adjunta","instituicao":"UniAlfa","unidade":"Grupo de Estudo e Pesquisa em Segurança da Informação (GEPISEG)","areas":["Privacidade","LGPD","Governança"],"linhaPesquisa":"Operacionalização de requisitos legais de privacidade em sistemas de informação","bio":"Pesquisa o que acontece quando uma exigência jurídica precisa virar coluna de banco e rotina de expurgo. Formação em Direito e em Computação.","email":"eduarda.mattos@unialfa.edu.br","fotoSeed":"eduarda-mattos-vieira","imagem":"https://api.dicebear.com/9.x/notionists/svg?seed=eduarda-mattos-vieira&backgroundColor=A6761D&radius=50","iniciais":"EV","cor":"#A6761D","ingresso":"2022-03-01","ativo":true,"metricas":{"totalArtigos":5,"totalCitacoes":156,"indiceH":5,"comoAutorPrincipal":3,"primeiroAno":2023,"ultimoAno":2026},"artigos":[{"titulo":"O que sua lâmpada conta sobre você: inferência de rotina a partir de tráfego doméstico","url":"json/artigo/5.json"},{"titulo":"Direito ao esquecimento em sistemas com replicação: o apagamento que não apaga","url":"json/artigo/9.json"},{"titulo":"Relatório de impacto à proteção de dados como artefato de engenharia","url":"json/artigo/10.json"},{"titulo":"Modelagem de ameaça leve para equipes pequenas","url":"json/artigo/26.json"},{"titulo":"Avaliação de maturidade em segurança: o que o número esconde","url":"json/artigo/29.json"}],"url":"json/pesquisador/5.json","created":"2022-02-02T12:30:00.000Z"},{"id":6,"nome":"Felipe Nogueira Castro","titulacao":"Especialista","cargo":"Pesquisador Associado","instituicao":"UniAlfa","unidade":"Grupo de Estudo e Pesquisa em Segurança da Informação (GEPISEG)","areas":["Resposta a Incidentes","SOC"],"linhaPesquisa":"Detecção e resposta assistida por automação em centros de operação","bio":"Veio de sete anos de plantão em SOC. Estuda por que alertas corretos continuam sendo ignorados e o que a automação resolve de fato.","email":"felipe.nogueira@unialfa.edu.br","fotoSeed":"felipe-nogueira-castro","imagem":"https://api.dicebear.com/9.x/notionists/svg?seed=felipe-nogueira-castro&backgroundColor=1F6F72&radius=50","iniciais":"FC","cor":"#1F6F72","ingresso":"2023-03-01","ativo":true,"metricas":{"totalArtigos":4,"totalCitacoes":137,"indiceH":4,"comoAutorPrincipal":2,"primeiroAno":2023,"ultimoAno":2025},"artigos":[{"titulo":"Tempo de permanência do atacante: medição em ambientes monitorados","url":"json/artigo/11.json"},{"titulo":"Fadiga de alerta em centros de operação: causas e intervenções","url":"json/artigo/12.json"},{"titulo":"Pretexto e autoridade: por que o pedido urgente funciona","url":"json/artigo/18.json"},{"titulo":"Rotulagem de incidentes para treinamento supervisionado: o gargalo que ninguém publica","url":"json/artigo/22.json"}],"url":"json/pesquisador/6.json","created":"2023-07-13T12:30:00.000Z"},{"id":7,"nome":"Gabriela Souza Andrade","titulacao":"Doutora","cargo":"Professora Titular","instituicao":"UniAlfa","unidade":"Grupo de Estudo e Pesquisa em Segurança da Informação (GEPISEG)","areas":["Forense Digital","Perícia"],"linhaPesquisa":"Cadeia de custódia e integridade de evidência em ambientes de nuvem","bio":"Perita com atuação em casos de fraude eletrônica. Pesquisa como preservar evidência em infraestrutura que não pertence a quem investiga.","email":"gabriela.souza@unialfa.edu.br","fotoSeed":"gabriela-souza-andrade","imagem":"https://api.dicebear.com/9.x/notionists/svg?seed=gabriela-souza-andrade&backgroundColor=9B3B5A&radius=50","iniciais":"GA","cor":"#9B3B5A","ingresso":"2024-03-01","ativo":true,"metricas":{"totalArtigos":3,"totalCitacoes":74,"indiceH":3,"comoAutorPrincipal":3,"primeiroAno":2024,"ultimoAno":2026},"artigos":[{"titulo":"Cadeia de custódia em nuvem: preservação de evidência sem controle da infraestrutura","url":"json/artigo/13.json"},{"titulo":"Artefatos voláteis em contêineres: o que sobra depois que o processo morre","url":"json/artigo/14.json"},{"titulo":"Recuperação de chave a partir de despejo de memória em aplicações móveis","url":"json/artigo/30.json"}],"url":"json/pesquisador/7.json","created":"2024-12-24T12:30:00.000Z"},{"id":8,"nome":"Henrique Barros Pacheco","titulacao":"Mestre","cargo":"Pesquisador","instituicao":"UniAlfa","unidade":"Grupo de Estudo e Pesquisa em Segurança da Informação (GEPISEG)","areas":["Segurança em Nuvem","Infraestrutura"],"linhaPesquisa":"Configuração indevida como vetor primário de incidente em provedores públicos","bio":"Estuda o incidente que não precisa de exploit: o bucket aberto, a chave vazada, a permissão larga demais que ninguém revisou.","email":"henrique.barros@unialfa.edu.br","fotoSeed":"henrique-barros-pacheco","imagem":"https://api.dicebear.com/9.x/notionists/svg?seed=henrique-barros-pacheco&backgroundColor=4A5568&radius=50","iniciais":"HP","cor":"#4A5568","ingresso":"2018-03-01","ativo":true,"metricas":{"totalArtigos":6,"totalCitacoes":147,"indiceH":6,"comoAutorPrincipal":2,"primeiroAno":2024,"ultimoAno":2026},"artigos":[{"titulo":"Padrões recorrentes de falha em testes de intrusão: análise de 60 engajamentos","url":"json/artigo/7.json"},{"titulo":"Relatório de impacto à proteção de dados como artefato de engenharia","url":"json/artigo/10.json"},{"titulo":"Artefatos voláteis em contêineres: o que sobra depois que o processo morre","url":"json/artigo/14.json"},{"titulo":"Configuração indevida em provedores públicos: anatomia de 40 incidentes","url":"json/artigo/15.json"},{"titulo":"Permissões de longa duração e o custo invisível da conveniência","url":"json/artigo/16.json"},{"titulo":"Segredos em repositório: detecção, rotação e o que fazer com o histórico","url":"json/artigo/25.json"}],"url":"json/pesquisador/8.json","created":"2018-05-08T12:30:00.000Z"},{"id":9,"nome":"Isabela Correia Lima","titulacao":"Mestra","cargo":"Pesquisadora","instituicao":"UniAlfa","unidade":"Grupo de Estudo e Pesquisa em Segurança da Informação (GEPISEG)","areas":["Engenharia Social","Fator Humano"],"linhaPesquisa":"Eficácia de programas de conscientização em segurança da informação","bio":"Pesquisa por que treinamento de phishing melhora o número do relatório e não melhora o comportamento. Formação em Psicologia e em Segurança.","email":"isabela.correia@unialfa.edu.br","fotoSeed":"isabela-correia-lima","imagem":"https://api.dicebear.com/9.x/notionists/svg?seed=isabela-correia-lima&backgroundColor=2F6F4E&radius=50","iniciais":"IL","cor":"#2F6F4E","ingresso":"2019-03-01","ativo":true,"metricas":{"totalArtigos":4,"totalCitacoes":140,"indiceH":4,"comoAutorPrincipal":2,"primeiroAno":2023,"ultimoAno":2026},"artigos":[{"titulo":"Fadiga de alerta em centros de operação: causas e intervenções","url":"json/artigo/12.json"},{"titulo":"Simulações de phishing medem o quê? Uma crítica metodológica","url":"json/artigo/17.json"},{"titulo":"Pretexto e autoridade: por que o pedido urgente funciona","url":"json/artigo/18.json"},{"titulo":"Avaliação de maturidade em segurança: o que o número esconde","url":"json/artigo/29.json"}],"url":"json/pesquisador/9.json","created":"2019-10-19T12:30:00.000Z"},{"id":10,"nome":"João Pedro Rezende","titulacao":"Graduando","cargo":"Bolsista de Iniciação Científica","instituicao":"UniAlfa","unidade":"Grupo de Estudo e Pesquisa em Segurança da Informação (GEPISEG)","areas":["Segurança de Aplicações","Análise Estática"],"linhaPesquisa":"Falsos positivos em ferramentas de análise estática de código","bio":"Bolsista desde 2024. Investiga o custo real de uma ferramenta que acusa muito e acerta pouco.","email":"joao.pedro@unialfa.edu.br","fotoSeed":"joao-pedro-rezende","imagem":"https://api.dicebear.com/9.x/notionists/svg?seed=joao-pedro-rezende&backgroundColor=8C4A2F&radius=50","iniciais":"JR","cor":"#8C4A2F","ingresso":"2020-03-01","ativo":true,"metricas":{"totalArtigos":3,"totalCitacoes":38,"indiceH":3,"comoAutorPrincipal":2,"primeiroAno":2025,"ultimoAno":2026},"artigos":[{"titulo":"Verificação de dependências em esteiras de entrega contínua: custo e cobertura","url":"json/artigo/1.json"},{"titulo":"Falsos positivos em análise estática: medindo o custo de atenção da equipe","url":"json/artigo/19.json"},{"titulo":"Regras customizadas de análise estática derivadas de incidentes internos","url":"json/artigo/20.json"}],"url":"json/pesquisador/10.json","created":"2020-03-03T12:30:00.000Z"},{"id":11,"nome":"Larissa Monteiro Dias","titulacao":"Doutora","cargo":"Professora Adjunta","instituicao":"UniAlfa","unidade":"Grupo de Estudo e Pesquisa em Segurança da Informação (GEPISEG)","areas":["Aprendizado de Máquina","Detecção de Anomalias"],"linhaPesquisa":"Modelos de detecção de anomalia em tráfego de rede corporativa","bio":"Trabalha com o problema mais chato da área: detector que funciona no conjunto de teste e desaba em produção.","email":"larissa.monteiro@unialfa.edu.br","fotoSeed":"larissa-monteiro-dias","imagem":"https://api.dicebear.com/9.x/notionists/svg?seed=larissa-monteiro-dias&backgroundColor=2C5282&radius=50","iniciais":"LD","cor":"#2C5282","ingresso":"2021-03-01","ativo":true,"metricas":{"totalArtigos":3,"totalCitacoes":82,"indiceH":3,"comoAutorPrincipal":2,"primeiroAno":2024,"ultimoAno":2025},"artigos":[{"titulo":"Tempo de permanência do atacante: medição em ambientes monitorados","url":"json/artigo/11.json"},{"titulo":"Detecção de anomalia em tráfego corporativo: por que o modelo desaba em produção","url":"json/artigo/21.json"},{"titulo":"Rotulagem de incidentes para treinamento supervisionado: o gargalo que ninguém publica","url":"json/artigo/22.json"}],"url":"json/pesquisador/11.json","created":"2021-08-14T12:30:00.000Z"},{"id":12,"nome":"Marcos Vinícius Ferraz","titulacao":"Doutor","cargo":"Professor Associado","instituicao":"UniAlfa","unidade":"Grupo de Estudo e Pesquisa em Segurança da Informação (GEPISEG)","areas":["Segurança Ofensiva","Engenharia Reversa"],"linhaPesquisa":"Análise de binários e identificação de vulnerabilidades em software proprietário","bio":"Pesquisa o que dá para descobrir sobre um programa sem ter o código dele. Coordena o laboratório de engenharia reversa.","email":"marcos.vinicius@unialfa.edu.br","fotoSeed":"marcos-vinicius-ferraz","imagem":"https://api.dicebear.com/9.x/notionists/svg?seed=marcos-vinicius-ferraz&backgroundColor=6B4E9B&radius=50","iniciais":"MF","cor":"#6B4E9B","ingresso":"2022-03-01","ativo":true,"metricas":{"totalArtigos":4,"totalCitacoes":137,"indiceH":4,"comoAutorPrincipal":2,"primeiroAno":2023,"ultimoAno":2025},"artigos":[{"titulo":"Permissões de longa duração e o custo invisível da conveniência","url":"json/artigo/16.json"},{"titulo":"Identificação de funções criptográficas em binários sem símbolos","url":"json/artigo/23.json"},{"titulo":"Ofuscação e seu efeito prático sobre o tempo de análise","url":"json/artigo/24.json"},{"titulo":"Segmentação de rede doméstica como mitigação para dispositivos não confiáveis","url":"json/artigo/28.json"}],"url":"json/pesquisador/12.json","created":"2022-01-25T12:30:00.000Z"}],
+  artigos: [{"id":1,"titulo":"Verificação de dependências em esteiras de entrega contínua: custo e cobertura","resumo":"Avaliamos o impacto de inserir verificação de dependências em quatro esteiras de entrega contínua reais, medindo tempo adicionado por execução e proporção de alertas acionáveis. O ganho de cobertura concentra-se nas primeiras verificações, enquanto o custo de tempo cresce de forma linear.","conteudo":"## Resumo\nAvaliamos o impacto de inserir verificação de dependências em quatro esteiras de entrega contínua reais, medindo tempo adicionado por execução e proporção de alertas acionáveis. O ganho de cobertura concentra-se nas primeiras verificações, enquanto o custo de tempo cresce de forma linear.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em DevSecOps do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Ana Clara Figueiredo, João Pedro Rezende entre 2024 e 2025. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_evento","assunto":"Segurança da Informação","tema":"DevSecOps","palavrasChave":["DevSecOps","cadeia de suprimentos","dependências","CI/CD"],"idioma":"pt-BR","dataLancamento":"2025-08-14","ano":2025,"veiculo":"Simpósio Brasileiro em Segurança da Informação e de Sistemas Computacionais","paginas":"11-22","citacoes":23,"status":"publicado","fotoSeed":"gepiseg-devsecops-1","imagem":"https://picsum.photos/seed/gepiseg-devsecops-1/640/360","capa":{"cor":"#6B4E9B","iniciais":"DE"},"autorPrincipal":{"nome":"Ana Clara Figueiredo","url":"json/pesquisador/1.json"},"autores":[{"nome":"Ana Clara Figueiredo","url":"json/pesquisador/1.json"},{"nome":"João Pedro Rezende","url":"json/pesquisador/10.json"}],"pesquisadores":["json/pesquisador/1.json","json/pesquisador/10.json"],"url":"json/artigo/1.json","created":"2025-06-12T12:30:00.000Z"},{"id":2,"titulo":"SSRF em arquiteturas de microsserviços: do acesso interno ao roubo de credencial","resumo":"Descrevemos como falhas de Server-Side Request Forgery deixam de ser um problema de acesso interno e passam a ser comprometimento de infraestrutura quando o serviço roda em nuvem com serviço de metadados acessível. Propomos um conjunto de controles de saída aplicável sem alteração de código de aplicação.","conteudo":"## Resumo\nDescrevemos como falhas de Server-Side Request Forgery deixam de ser um problema de acesso interno e passam a ser comprometimento de infraestrutura quando o serviço roda em nuvem com serviço de metadados acessível. Propomos um conjunto de controles de saída aplicável sem alteração de código de aplicação.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Segurança de Aplicações do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Ana Clara Figueiredo, Diego Albuquerque Rosa entre 2024 e 2025. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_periodico","assunto":"Segurança da Informação","tema":"Segurança de Aplicações","palavrasChave":["SSRF","OWASP","microsserviços","metadados de instância"],"idioma":"pt-BR","dataLancamento":"2025-03-27","ano":2025,"veiculo":"Revista Brasileira de Segurança Computacional","paginas":"18-29","citacoes":41,"status":"publicado","fotoSeed":"gepiseg-seguranca-de-aplicacoes-2","imagem":"https://picsum.photos/seed/gepiseg-seguranca-de-aplicacoes-2/640/360","capa":{"cor":"#A6761D","iniciais":"SE"},"autorPrincipal":{"nome":"Ana Clara Figueiredo","url":"json/pesquisador/1.json"},"autores":[{"nome":"Ana Clara Figueiredo","url":"json/pesquisador/1.json"},{"nome":"Diego Albuquerque Rosa","url":"json/pesquisador/4.json"}],"pesquisadores":["json/pesquisador/1.json","json/pesquisador/4.json"],"url":"json/artigo/2.json","created":"2025-11-23T12:30:00.000Z"},{"id":3,"titulo":"Implementações de AES em microcontroladores: análise de consumo e canal lateral","resumo":"Comparamos cinco implementações de AES em microcontroladores de baixo custo quanto à resistência a análise diferencial de consumo. Implementações otimizadas para velocidade apresentaram vazamento mensurável em todas as plataformas testadas.","conteudo":"## Resumo\nComparamos cinco implementações de AES em microcontroladores de baixo custo quanto à resistência a análise diferencial de consumo. Implementações otimizadas para velocidade apresentaram vazamento mensurável em todas as plataformas testadas.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Criptografia Aplicada do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Bruno Tavares Lemos entre 2023 e 2024. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_periodico","assunto":"Segurança da Informação","tema":"Criptografia Aplicada","palavrasChave":["AES","canal lateral","microcontrolador","consumo de energia"],"idioma":"pt-BR","dataLancamento":"2024-10-13","ano":2024,"veiculo":"Journal of Cryptographic Engineering","paginas":"25-36","citacoes":56,"status":"publicado","fotoSeed":"gepiseg-criptografia-aplicada-3","imagem":"https://picsum.photos/seed/gepiseg-criptografia-aplicada-3/640/360","capa":{"cor":"#1F6F72","iniciais":"CR"},"autorPrincipal":{"nome":"Bruno Tavares Lemos","url":"json/pesquisador/2.json"},"autores":[{"nome":"Bruno Tavares Lemos","url":"json/pesquisador/2.json"}],"pesquisadores":["json/pesquisador/2.json"],"url":"json/artigo/3.json","created":"2024-04-07T12:30:00.000Z"},{"id":4,"titulo":"Troca de chaves pós-quântica em dispositivos restritos: viabilidade prática","resumo":"Medimos tempo de execução, consumo de memória e energia de algoritmos de encapsulamento de chave pós-quânticos em três plataformas de IoT. O custo de memória, e não o de processamento, é o fator que inviabiliza a adoção nas plataformas mais restritas.","conteudo":"## Resumo\nMedimos tempo de execução, consumo de memória e energia de algoritmos de encapsulamento de chave pós-quânticos em três plataformas de IoT. O custo de memória, e não o de processamento, é o fator que inviabiliza a adoção nas plataformas mais restritas.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Criptografia Aplicada do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Bruno Tavares Lemos, Carolina Prado Nunes entre 2025 e 2026. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_evento","assunto":"Segurança da Informação","tema":"Criptografia Aplicada","palavrasChave":["pós-quântico","Kyber","IoT","troca de chaves"],"idioma":"pt-BR","dataLancamento":"2026-05-26","ano":2026,"veiculo":"Workshop de Criptografia e Segurança Computacional","paginas":"32-43","citacoes":8,"status":"publicado","fotoSeed":"gepiseg-criptografia-aplicada-4","imagem":"https://picsum.photos/seed/gepiseg-criptografia-aplicada-4/640/360","capa":{"cor":"#9B3B5A","iniciais":"CR"},"autorPrincipal":{"nome":"Bruno Tavares Lemos","url":"json/pesquisador/2.json"},"autores":[{"nome":"Bruno Tavares Lemos","url":"json/pesquisador/2.json"},{"nome":"Carolina Prado Nunes","url":"json/pesquisador/3.json"}],"pesquisadores":["json/pesquisador/2.json","json/pesquisador/3.json"],"url":"json/artigo/4.json","created":"2026-09-18T12:30:00.000Z"},{"id":5,"titulo":"O que sua lâmpada conta sobre você: inferência de rotina a partir de tráfego doméstico","resumo":"Mostramos que o padrão temporal do tráfego de dispositivos domésticos conectados permite inferir horários de sono, ausência e número de ocupantes, mesmo com todo o conteúdo cifrado. A proteção do conteúdo não protege o metadado.","conteudo":"## Resumo\nMostramos que o padrão temporal do tráfego de dispositivos domésticos conectados permite inferir horários de sono, ausência e número de ocupantes, mesmo com todo o conteúdo cifrado. A proteção do conteúdo não protege o metadado.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Segurança em IoT do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Carolina Prado Nunes, Eduarda Mattos Vieira entre 2024 e 2025. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_periodico","assunto":"Segurança da Informação","tema":"Segurança em IoT","palavrasChave":["IoT","privacidade","análise de tráfego","metadados"],"idioma":"pt-BR","dataLancamento":"2025-12-12","ano":2025,"veiculo":"Revista Brasileira de Segurança Computacional","paginas":"39-50","citacoes":34,"status":"publicado","fotoSeed":"gepiseg-seguranca-em-iot-5","imagem":"https://picsum.photos/seed/gepiseg-seguranca-em-iot-5/640/360","capa":{"cor":"#4A5568","iniciais":"SE"},"autorPrincipal":{"nome":"Carolina Prado Nunes","url":"json/pesquisador/3.json"},"autores":[{"nome":"Carolina Prado Nunes","url":"json/pesquisador/3.json"},{"nome":"Eduarda Mattos Vieira","url":"json/pesquisador/5.json"}],"pesquisadores":["json/pesquisador/3.json","json/pesquisador/5.json"],"url":"json/artigo/5.json","created":"2025-02-02T12:30:00.000Z"},{"id":6,"titulo":"Autenticação padrão de fábrica em dispositivos de consumo: levantamento em 120 modelos","resumo":"Levantamento das práticas de autenticação inicial em 120 modelos de dispositivos domésticos disponíveis no varejo brasileiro. Um terço ainda distribui credencial padrão idêntica entre unidades do mesmo modelo.","conteudo":"## Resumo\nLevantamento das práticas de autenticação inicial em 120 modelos de dispositivos domésticos disponíveis no varejo brasileiro. Um terço ainda distribui credencial padrão idêntica entre unidades do mesmo modelo.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Segurança em IoT do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Carolina Prado Nunes entre 2023 e 2024. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"relatorio_tecnico","assunto":"Segurança da Informação","tema":"Segurança em IoT","palavrasChave":["IoT","credencial padrão","autenticação","levantamento"],"idioma":"pt-BR","dataLancamento":"2024-07-25","ano":2024,"veiculo":"Relatório Técnico GEPISEG","paginas":"46-57","citacoes":19,"status":"publicado","fotoSeed":"gepiseg-seguranca-em-iot-6","imagem":"https://picsum.photos/seed/gepiseg-seguranca-em-iot-6/640/360","capa":{"cor":"#2F6F4E","iniciais":"SE"},"autorPrincipal":{"nome":"Carolina Prado Nunes","url":"json/pesquisador/3.json"},"autores":[{"nome":"Carolina Prado Nunes","url":"json/pesquisador/3.json"}],"pesquisadores":["json/pesquisador/3.json"],"url":"json/artigo/6.json","created":"2024-07-13T12:30:00.000Z"},{"id":7,"titulo":"Padrões recorrentes de falha em testes de intrusão: análise de 60 engajamentos","resumo":"Analisamos 60 relatórios de teste de intrusão em aplicações corporativas, classificando os achados por categoria e severidade. Falhas de controle de acesso aparecem em 78% dos engajamentos e concentram a maior parte dos achados críticos.","conteudo":"## Resumo\nAnalisamos 60 relatórios de teste de intrusão em aplicações corporativas, classificando os achados por categoria e severidade. Falhas de controle de acesso aparecem em 78% dos engajamentos e concentram a maior parte dos achados críticos.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Teste de Intrusão do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Diego Albuquerque Rosa, Henrique Barros Pacheco entre 2024 e 2025. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_evento","assunto":"Segurança da Informação","tema":"Teste de Intrusão","palavrasChave":["teste de intrusão","red team","controle de acesso","estatística"],"idioma":"pt-BR","dataLancamento":"2025-02-11","ano":2025,"veiculo":"Simpósio Brasileiro em Segurança da Informação e de Sistemas Computacionais","paginas":"53-64","citacoes":29,"status":"publicado","fotoSeed":"gepiseg-teste-de-intrusao-7","imagem":"https://picsum.photos/seed/gepiseg-teste-de-intrusao-7/640/360","capa":{"cor":"#8C4A2F","iniciais":"TE"},"autorPrincipal":{"nome":"Diego Albuquerque Rosa","url":"json/pesquisador/4.json"},"autores":[{"nome":"Diego Albuquerque Rosa","url":"json/pesquisador/4.json"},{"nome":"Henrique Barros Pacheco","url":"json/pesquisador/8.json"}],"pesquisadores":["json/pesquisador/4.json","json/pesquisador/8.json"],"url":"json/artigo/7.json","created":"2025-12-24T12:30:00.000Z"},{"id":8,"titulo":"Escalonamento de privilégio por confusão de identidade em APIs REST","resumo":"Descrevemos uma classe de falha em que a API autentica corretamente e autoriza com o identificador errado, permitindo que um usuário legítimo alcance dados de outro. Propomos um teste automatizável que detecta o padrão sem conhecimento do domínio.","conteudo":"## Resumo\nDescrevemos uma classe de falha em que a API autentica corretamente e autoriza com o identificador errado, permitindo que um usuário legítimo alcance dados de outro. Propomos um teste automatizável que detecta o padrão sem conhecimento do domínio.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Teste de Intrusão do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Diego Albuquerque Rosa, Ana Clara Figueiredo entre 2023 e 2024. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_evento","assunto":"Segurança da Informação","tema":"Teste de Intrusão","palavrasChave":["API","IDOR","controle de acesso","autorização"],"idioma":"pt-BR","dataLancamento":"2024-09-24","ano":2024,"veiculo":"Conferência Latino-Americana de Segurança Ofensiva","paginas":"60-71","citacoes":37,"status":"publicado","fotoSeed":"gepiseg-teste-de-intrusao-8","imagem":"https://picsum.photos/seed/gepiseg-teste-de-intrusao-8/640/360","capa":{"cor":"#2C5282","iniciais":"TE"},"autorPrincipal":{"nome":"Diego Albuquerque Rosa","url":"json/pesquisador/4.json"},"autores":[{"nome":"Diego Albuquerque Rosa","url":"json/pesquisador/4.json"},{"nome":"Ana Clara Figueiredo","url":"json/pesquisador/1.json"}],"pesquisadores":["json/pesquisador/4.json","json/pesquisador/1.json"],"url":"json/artigo/8.json","created":"2024-05-08T12:30:00.000Z"},{"id":9,"titulo":"Direito ao esquecimento em sistemas com replicação: o apagamento que não apaga","resumo":"Examinamos a distância entre a exclusão exigida pela legislação e a exclusão efetiva em arquiteturas com réplicas, backups e registros de auditoria. Apresentamos um modelo de expurgo que mantém rastreabilidade sem reter dado pessoal.","conteudo":"## Resumo\nExaminamos a distância entre a exclusão exigida pela legislação e a exclusão efetiva em arquiteturas com réplicas, backups e registros de auditoria. Apresentamos um modelo de expurgo que mantém rastreabilidade sem reter dado pessoal.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Privacidade e LGPD do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Eduarda Mattos Vieira entre 2024 e 2025. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_periodico","assunto":"Segurança da Informação","tema":"Privacidade e LGPD","palavrasChave":["LGPD","privacidade","retenção","replicação"],"idioma":"pt-BR","dataLancamento":"2025-04-10","ano":2025,"veiculo":"Revista de Direito e Tecnologia","paginas":"67-78","citacoes":44,"status":"publicado","fotoSeed":"gepiseg-privacidade-e-lgpd-9","imagem":"https://picsum.photos/seed/gepiseg-privacidade-e-lgpd-9/640/360","capa":{"cor":"#6B4E9B","iniciais":"PR"},"autorPrincipal":{"nome":"Eduarda Mattos Vieira","url":"json/pesquisador/5.json"},"autores":[{"nome":"Eduarda Mattos Vieira","url":"json/pesquisador/5.json"}],"pesquisadores":["json/pesquisador/5.json"],"url":"json/artigo/9.json","created":"2025-10-19T12:30:00.000Z"},{"id":10,"titulo":"Relatório de impacto à proteção de dados como artefato de engenharia","resumo":"Propomos tratar o relatório de impacto à proteção de dados como artefato versionado junto ao código, e não como documento jurídico apartado. A abordagem foi aplicada em duas organizações ao longo de dezoito meses.","conteudo":"## Resumo\nPropomos tratar o relatório de impacto à proteção de dados como artefato versionado junto ao código, e não como documento jurídico apartado. A abordagem foi aplicada em duas organizações ao longo de dezoito meses.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Privacidade e LGPD do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Eduarda Mattos Vieira, Henrique Barros Pacheco entre 2023 e 2024. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"capitulo_livro","assunto":"Segurança da Informação","tema":"Privacidade e LGPD","palavrasChave":["LGPD","RIPD","governança","processo"],"idioma":"pt-BR","dataLancamento":"2024-11-23","ano":2024,"veiculo":"Governança de Dados na Prática (Editora Universitária)","paginas":"74-85","citacoes":15,"status":"publicado","fotoSeed":"gepiseg-privacidade-e-lgpd-10","imagem":"https://picsum.photos/seed/gepiseg-privacidade-e-lgpd-10/640/360","capa":{"cor":"#A6761D","iniciais":"PR"},"autorPrincipal":{"nome":"Eduarda Mattos Vieira","url":"json/pesquisador/5.json"},"autores":[{"nome":"Eduarda Mattos Vieira","url":"json/pesquisador/5.json"},{"nome":"Henrique Barros Pacheco","url":"json/pesquisador/8.json"}],"pesquisadores":["json/pesquisador/5.json","json/pesquisador/8.json"],"url":"json/artigo/10.json","created":"2024-03-03T12:30:00.000Z"},{"id":11,"titulo":"Tempo de permanência do atacante: medição em ambientes monitorados","resumo":"Medimos o intervalo entre comprometimento inicial e detecção em 23 incidentes atendidos entre 2022 e 2024. A mediana caiu com a adoção de detecção em endpoint, mas a cauda longa permanece dominada por acessos legítimos abusados.","conteudo":"## Resumo\nMedimos o intervalo entre comprometimento inicial e detecção em 23 incidentes atendidos entre 2022 e 2024. A mediana caiu com a adoção de detecção em endpoint, mas a cauda longa permanece dominada por acessos legítimos abusados.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Resposta a Incidentes do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Felipe Nogueira Castro, Larissa Monteiro Dias entre 2024 e 2025. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_periodico","assunto":"Segurança da Informação","tema":"Resposta a Incidentes","palavrasChave":["resposta a incidentes","detecção","SOC","tempo de permanência"],"idioma":"pt-BR","dataLancamento":"2025-06-09","ano":2025,"veiculo":"Revista Brasileira de Segurança Computacional","paginas":"81-92","citacoes":31,"status":"publicado","fotoSeed":"gepiseg-resposta-a-incidentes-11","imagem":"https://picsum.photos/seed/gepiseg-resposta-a-incidentes-11/640/360","capa":{"cor":"#1F6F72","iniciais":"RE"},"autorPrincipal":{"nome":"Felipe Nogueira Castro","url":"json/pesquisador/6.json"},"autores":[{"nome":"Felipe Nogueira Castro","url":"json/pesquisador/6.json"},{"nome":"Larissa Monteiro Dias","url":"json/pesquisador/11.json"}],"pesquisadores":["json/pesquisador/6.json","json/pesquisador/11.json"],"url":"json/artigo/11.json","created":"2025-08-14T12:30:00.000Z"},{"id":12,"titulo":"Fadiga de alerta em centros de operação: causas e intervenções","resumo":"Investigamos por que analistas de plantão passam a ignorar categorias inteiras de alerta corretamente configuradas. A intervenção de maior efeito não foi reduzir o volume, e sim tornar visível a consequência de cada decisão de triagem.","conteudo":"## Resumo\nInvestigamos por que analistas de plantão passam a ignorar categorias inteiras de alerta corretamente configuradas. A intervenção de maior efeito não foi reduzir o volume, e sim tornar visível a consequência de cada decisão de triagem.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Resposta a Incidentes do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Felipe Nogueira Castro, Isabela Correia Lima entre 2023 e 2024. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_evento","assunto":"Segurança da Informação","tema":"Resposta a Incidentes","palavrasChave":["SOC","fadiga de alerta","fator humano","triagem"],"idioma":"pt-BR","dataLancamento":"2024-01-22","ano":2024,"veiculo":"Workshop de Operações de Segurança","paginas":"88-99","citacoes":26,"status":"publicado","fotoSeed":"gepiseg-resposta-a-incidentes-12","imagem":"https://picsum.photos/seed/gepiseg-resposta-a-incidentes-12/640/360","capa":{"cor":"#9B3B5A","iniciais":"RE"},"autorPrincipal":{"nome":"Felipe Nogueira Castro","url":"json/pesquisador/6.json"},"autores":[{"nome":"Felipe Nogueira Castro","url":"json/pesquisador/6.json"},{"nome":"Isabela Correia Lima","url":"json/pesquisador/9.json"}],"pesquisadores":["json/pesquisador/6.json","json/pesquisador/9.json"],"url":"json/artigo/12.json","created":"2024-01-25T12:30:00.000Z"},{"id":13,"titulo":"Cadeia de custódia em nuvem: preservação de evidência sem controle da infraestrutura","resumo":"Discutimos os limites da perícia quando o investigador não controla o meio onde a evidência reside. Propomos um protocolo de coleta que registra as limitações do ambiente como parte do laudo, em vez de omiti-las.","conteudo":"## Resumo\nDiscutimos os limites da perícia quando o investigador não controla o meio onde a evidência reside. Propomos um protocolo de coleta que registra as limitações do ambiente como parte do laudo, em vez de omiti-las.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Forense Digital do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Gabriela Souza Andrade entre 2024 e 2025. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_periodico","assunto":"Segurança da Informação","tema":"Forense Digital","palavrasChave":["forense","nuvem","cadeia de custódia","evidência"],"idioma":"pt-BR","dataLancamento":"2025-08-08","ano":2025,"veiculo":"Revista Brasileira de Ciências Forenses","paginas":"95-106","citacoes":38,"status":"publicado","fotoSeed":"gepiseg-forense-digital-13","imagem":"https://picsum.photos/seed/gepiseg-forense-digital-13/640/360","capa":{"cor":"#4A5568","iniciais":"FO"},"autorPrincipal":{"nome":"Gabriela Souza Andrade","url":"json/pesquisador/7.json"},"autores":[{"nome":"Gabriela Souza Andrade","url":"json/pesquisador/7.json"}],"pesquisadores":["json/pesquisador/7.json"],"url":"json/artigo/13.json","created":"2025-06-09T12:30:00.000Z"},{"id":14,"titulo":"Artefatos voláteis em contêineres: o que sobra depois que o processo morre","resumo":"Avaliamos a persistência de artefatos forenses após o término de contêineres em três orquestradores. A janela de recuperação é curta e varia mais com a configuração do runtime do que com o orquestrador escolhido.","conteudo":"## Resumo\nAvaliamos a persistência de artefatos forenses após o término de contêineres em três orquestradores. A janela de recuperação é curta e varia mais com a configuração do runtime do que com o orquestrador escolhido.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Forense Digital do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Gabriela Souza Andrade, Henrique Barros Pacheco entre 2025 e 2026. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_evento","assunto":"Segurança da Informação","tema":"Forense Digital","palavrasChave":["forense","contêiner","memória","artefatos"],"idioma":"pt-BR","dataLancamento":"2026-03-21","ano":2026,"veiculo":"Simpósio Brasileiro em Segurança da Informação e de Sistemas Computacionais","paginas":"102-113","citacoes":6,"status":"publicado","fotoSeed":"gepiseg-forense-digital-14","imagem":"https://picsum.photos/seed/gepiseg-forense-digital-14/640/360","capa":{"cor":"#2F6F4E","iniciais":"FO"},"autorPrincipal":{"nome":"Gabriela Souza Andrade","url":"json/pesquisador/7.json"},"autores":[{"nome":"Gabriela Souza Andrade","url":"json/pesquisador/7.json"},{"nome":"Henrique Barros Pacheco","url":"json/pesquisador/8.json"}],"pesquisadores":["json/pesquisador/7.json","json/pesquisador/8.json"],"url":"json/artigo/14.json","created":"2026-11-20T12:30:00.000Z"},{"id":15,"titulo":"Configuração indevida em provedores públicos: anatomia de 40 incidentes","resumo":"Classificamos 40 incidentes públicos cuja causa raiz foi configuração e não vulnerabilidade de software. Armazenamento exposto e credencial de longa duração em repositório respondem por mais da metade dos casos.","conteudo":"## Resumo\nClassificamos 40 incidentes públicos cuja causa raiz foi configuração e não vulnerabilidade de software. Armazenamento exposto e credencial de longa duração em repositório respondem por mais da metade dos casos.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Segurança em Nuvem do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Henrique Barros Pacheco entre 2023 e 2024. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_periodico","assunto":"Segurança da Informação","tema":"Segurança em Nuvem","palavrasChave":["nuvem","configuração","exposição","incidente"],"idioma":"pt-BR","dataLancamento":"2024-10-07","ano":2024,"veiculo":"Revista Brasileira de Segurança Computacional","paginas":"109-120","citacoes":52,"status":"publicado","fotoSeed":"gepiseg-seguranca-em-nuvem-15","imagem":"https://picsum.photos/seed/gepiseg-seguranca-em-nuvem-15/640/360","capa":{"cor":"#8C4A2F","iniciais":"SE"},"autorPrincipal":{"nome":"Henrique Barros Pacheco","url":"json/pesquisador/8.json"},"autores":[{"nome":"Henrique Barros Pacheco","url":"json/pesquisador/8.json"}],"pesquisadores":["json/pesquisador/8.json"],"url":"json/artigo/15.json","created":"2024-04-04T12:30:00.000Z"},{"id":16,"titulo":"Permissões de longa duração e o custo invisível da conveniência","resumo":"Mostramos como credenciais permanentes concedidas por conveniência operacional ampliam o alcance de um comprometimento inicial. Em simulação, a substituição por credenciais temporárias reduziu o alcance lateral em 70%.","conteudo":"## Resumo\nMostramos como credenciais permanentes concedidas por conveniência operacional ampliam o alcance de um comprometimento inicial. Em simulação, a substituição por credenciais temporárias reduziu o alcance lateral em 70%.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Segurança em Nuvem do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Henrique Barros Pacheco, Marcos Vinícius Ferraz entre 2024 e 2025. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_evento","assunto":"Segurança da Informação","tema":"Segurança em Nuvem","palavrasChave":["nuvem","IAM","credencial","privilégio mínimo"],"idioma":"pt-BR","dataLancamento":"2025-05-20","ano":2025,"veiculo":"Conferência Latino-Americana de Segurança Ofensiva","paginas":"116-127","citacoes":21,"status":"publicado","fotoSeed":"gepiseg-seguranca-em-nuvem-16","imagem":"https://picsum.photos/seed/gepiseg-seguranca-em-nuvem-16/640/360","capa":{"cor":"#2C5282","iniciais":"SE"},"autorPrincipal":{"nome":"Henrique Barros Pacheco","url":"json/pesquisador/8.json"},"autores":[{"nome":"Henrique Barros Pacheco","url":"json/pesquisador/8.json"},{"nome":"Marcos Vinícius Ferraz","url":"json/pesquisador/12.json"}],"pesquisadores":["json/pesquisador/8.json","json/pesquisador/12.json"],"url":"json/artigo/16.json","created":"2025-09-15T12:30:00.000Z"},{"id":17,"titulo":"Simulações de phishing medem o quê? Uma crítica metodológica","resumo":"Argumentamos que a taxa de clique em simulações mede familiaridade com o formato da simulação, não resistência a engenharia social. Propomos indicadores alternativos baseados em comportamento de verificação e de notificação.","conteudo":"## Resumo\nArgumentamos que a taxa de clique em simulações mede familiaridade com o formato da simulação, não resistência a engenharia social. Propomos indicadores alternativos baseados em comportamento de verificação e de notificação.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Engenharia Social do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Isabela Correia Lima entre 2024 e 2025. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_periodico","assunto":"Segurança da Informação","tema":"Engenharia Social","palavrasChave":["phishing","conscientização","metodologia","fator humano"],"idioma":"pt-BR","dataLancamento":"2025-12-06","ano":2025,"veiculo":"Revista de Psicologia Organizacional e Tecnologia","paginas":"123-134","citacoes":47,"status":"publicado","fotoSeed":"gepiseg-engenharia-social-17","imagem":"https://picsum.photos/seed/gepiseg-engenharia-social-17/640/360","capa":{"cor":"#6B4E9B","iniciais":"EN"},"autorPrincipal":{"nome":"Isabela Correia Lima","url":"json/pesquisador/9.json"},"autores":[{"nome":"Isabela Correia Lima","url":"json/pesquisador/9.json"}],"pesquisadores":["json/pesquisador/9.json"],"url":"json/artigo/17.json","created":"2025-02-26T12:30:00.000Z"},{"id":18,"titulo":"Pretexto e autoridade: por que o pedido urgente funciona","resumo":"Revisamos a literatura sobre conformidade a pedidos que invocam autoridade e urgência, aplicada ao contexto de fraude corporativa. O capítulo conecta achados clássicos de psicologia social a padrões observados em casos reais.","conteudo":"## Resumo\nRevisamos a literatura sobre conformidade a pedidos que invocam autoridade e urgência, aplicada ao contexto de fraude corporativa. O capítulo conecta achados clássicos de psicologia social a padrões observados em casos reais.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Engenharia Social do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Isabela Correia Lima, Felipe Nogueira Castro entre 2022 e 2023. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"capitulo_livro","assunto":"Segurança da Informação","tema":"Engenharia Social","palavrasChave":["engenharia social","pretexto","autoridade","urgência"],"idioma":"pt-BR","dataLancamento":"2023-07-19","ano":2023,"veiculo":"Fator Humano em Segurança da Informação (Editora Universitária)","paginas":"130-141","citacoes":62,"status":"publicado","fotoSeed":"gepiseg-engenharia-social-18","imagem":"https://picsum.photos/seed/gepiseg-engenharia-social-18/640/360","capa":{"cor":"#A6761D","iniciais":"EN"},"autorPrincipal":{"nome":"Isabela Correia Lima","url":"json/pesquisador/9.json"},"autores":[{"nome":"Isabela Correia Lima","url":"json/pesquisador/9.json"},{"nome":"Felipe Nogueira Castro","url":"json/pesquisador/6.json"}],"pesquisadores":["json/pesquisador/9.json","json/pesquisador/6.json"],"url":"json/artigo/18.json","created":"2023-07-10T12:30:00.000Z"},{"id":19,"titulo":"Falsos positivos em análise estática: medindo o custo de atenção da equipe","resumo":"Quantificamos o tempo gasto por desenvolvedores na triagem de achados de ferramentas de análise estática em três projetos. Acima de certa taxa de falso positivo, a equipe passa a ignorar a ferramenta inteira, inclusive os achados corretos.","conteudo":"## Resumo\nQuantificamos o tempo gasto por desenvolvedores na triagem de achados de ferramentas de análise estática em três projetos. Acima de certa taxa de falso positivo, a equipe passa a ignorar a ferramenta inteira, inclusive os achados corretos.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Análise Estática do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por João Pedro Rezende, Ana Clara Figueiredo entre 2025 e 2026. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_evento","assunto":"Segurança da Informação","tema":"Análise Estática","palavrasChave":["análise estática","falso positivo","SAST","produtividade"],"idioma":"pt-BR","dataLancamento":"2026-02-05","ano":2026,"veiculo":"Workshop de Qualidade e Segurança de Software","paginas":"137-148","citacoes":4,"status":"publicado","fotoSeed":"gepiseg-analise-estatica-19","imagem":"https://picsum.photos/seed/gepiseg-analise-estatica-19/640/360","capa":{"cor":"#1F6F72","iniciais":"AN"},"autorPrincipal":{"nome":"João Pedro Rezende","url":"json/pesquisador/10.json"},"autores":[{"nome":"João Pedro Rezende","url":"json/pesquisador/10.json"},{"nome":"Ana Clara Figueiredo","url":"json/pesquisador/1.json"}],"pesquisadores":["json/pesquisador/10.json","json/pesquisador/1.json"],"url":"json/artigo/19.json","created":"2026-12-21T12:30:00.000Z"},{"id":20,"titulo":"Regras customizadas de análise estática derivadas de incidentes internos","resumo":"Descrevemos um processo para transformar cada incidente de segurança interno em regra de análise estática verificável. Em um ano, dezessete regras derivadas de incidentes capturaram quarenta e uma ocorrências do mesmo padrão.","conteudo":"## Resumo\nDescrevemos um processo para transformar cada incidente de segurança interno em regra de análise estática verificável. Em um ano, dezessete regras derivadas de incidentes capturaram quarenta e uma ocorrências do mesmo padrão.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Análise Estática do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por João Pedro Rezende entre 2024 e 2025. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"relatorio_tecnico","assunto":"Segurança da Informação","tema":"Análise Estática","palavrasChave":["análise estática","regras","incidente","aprendizado"],"idioma":"pt-BR","dataLancamento":"2025-09-18","ano":2025,"veiculo":"Relatório Técnico GEPISEG","paginas":"144-155","citacoes":11,"status":"publicado","fotoSeed":"gepiseg-analise-estatica-20","imagem":"https://picsum.photos/seed/gepiseg-analise-estatica-20/640/360","capa":{"cor":"#9B3B5A","iniciais":"AN"},"autorPrincipal":{"nome":"João Pedro Rezende","url":"json/pesquisador/10.json"},"autores":[{"nome":"João Pedro Rezende","url":"json/pesquisador/10.json"}],"pesquisadores":["json/pesquisador/10.json"],"url":"json/artigo/20.json","created":"2025-05-05T12:30:00.000Z"},{"id":21,"titulo":"Detecção de anomalia em tráfego corporativo: por que o modelo desaba em produção","resumo":"Avaliamos a degradação de detectores de anomalia treinados em tráfego histórico quando aplicados meses depois. A queda de desempenho acompanha mudanças de infraestrutura, não mudanças de comportamento de ataque.","conteudo":"## Resumo\nAvaliamos a degradação de detectores de anomalia treinados em tráfego histórico quando aplicados meses depois. A queda de desempenho acompanha mudanças de infraestrutura, não mudanças de comportamento de ataque.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Detecção de Anomalias do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Larissa Monteiro Dias entre 2024 e 2025. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_periodico","assunto":"Segurança da Informação","tema":"Detecção de Anomalias","palavrasChave":["aprendizado de máquina","detecção de anomalia","desvio de distribuição","rede"],"idioma":"pt-BR","dataLancamento":"2025-04-04","ano":2025,"veiculo":"Journal of Network and Systems Management","paginas":"151-162","citacoes":33,"status":"publicado","fotoSeed":"gepiseg-deteccao-de-anomalias-21","imagem":"https://picsum.photos/seed/gepiseg-deteccao-de-anomalias-21/640/360","capa":{"cor":"#4A5568","iniciais":"DE"},"autorPrincipal":{"nome":"Larissa Monteiro Dias","url":"json/pesquisador/11.json"},"autores":[{"nome":"Larissa Monteiro Dias","url":"json/pesquisador/11.json"}],"pesquisadores":["json/pesquisador/11.json"],"url":"json/artigo/21.json","created":"2025-10-16T12:30:00.000Z"},{"id":22,"titulo":"Rotulagem de incidentes para treinamento supervisionado: o gargalo que ninguém publica","resumo":"Relatamos a construção de um conjunto de dados rotulado a partir de alertas reais de um centro de operações. O custo de rotulagem, raramente reportado, superou em dez vezes o custo de treinamento dos modelos avaliados.","conteudo":"## Resumo\nRelatamos a construção de um conjunto de dados rotulado a partir de alertas reais de um centro de operações. O custo de rotulagem, raramente reportado, superou em dez vezes o custo de treinamento dos modelos avaliados.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Detecção de Anomalias do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Larissa Monteiro Dias, Felipe Nogueira Castro entre 2023 e 2024. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_evento","assunto":"Segurança da Informação","tema":"Detecção de Anomalias","palavrasChave":["aprendizado de máquina","rotulagem","conjunto de dados","SOC"],"idioma":"pt-BR","dataLancamento":"2024-11-17","ano":2024,"veiculo":"Workshop de Operações de Segurança","paginas":"158-169","citacoes":18,"status":"publicado","fotoSeed":"gepiseg-deteccao-de-anomalias-22","imagem":"https://picsum.photos/seed/gepiseg-deteccao-de-anomalias-22/640/360","capa":{"cor":"#2F6F4E","iniciais":"DE"},"autorPrincipal":{"nome":"Larissa Monteiro Dias","url":"json/pesquisador/11.json"},"autores":[{"nome":"Larissa Monteiro Dias","url":"json/pesquisador/11.json"},{"nome":"Felipe Nogueira Castro","url":"json/pesquisador/6.json"}],"pesquisadores":["json/pesquisador/11.json","json/pesquisador/6.json"],"url":"json/artigo/22.json","created":"2024-03-27T12:30:00.000Z"},{"id":23,"titulo":"Identificação de funções criptográficas em binários sem símbolos","resumo":"Apresentamos uma técnica para localizar primitivas criptográficas em binários despojados de símbolos, baseada em assinatura de constantes e padrão de fluxo. A técnica identificou corretamente onze das treze primitivas no conjunto de avaliação.","conteudo":"## Resumo\nApresentamos uma técnica para localizar primitivas criptográficas em binários despojados de símbolos, baseada em assinatura de constantes e padrão de fluxo. A técnica identificou corretamente onze das treze primitivas no conjunto de avaliação.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Engenharia Reversa do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Marcos Vinícius Ferraz, Bruno Tavares Lemos entre 2024 e 2025. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_periodico","assunto":"Segurança da Informação","tema":"Engenharia Reversa","palavrasChave":["engenharia reversa","binário","criptografia","identificação"],"idioma":"pt-BR","dataLancamento":"2025-06-03","ano":2025,"veiculo":"Journal of Cryptographic Engineering","paginas":"165-176","citacoes":27,"status":"publicado","fotoSeed":"gepiseg-engenharia-reversa-23","imagem":"https://picsum.photos/seed/gepiseg-engenharia-reversa-23/640/360","capa":{"cor":"#8C4A2F","iniciais":"EN"},"autorPrincipal":{"nome":"Marcos Vinícius Ferraz","url":"json/pesquisador/12.json"},"autores":[{"nome":"Marcos Vinícius Ferraz","url":"json/pesquisador/12.json"},{"nome":"Bruno Tavares Lemos","url":"json/pesquisador/2.json"}],"pesquisadores":["json/pesquisador/12.json","json/pesquisador/2.json"],"url":"json/artigo/23.json","created":"2025-08-11T12:30:00.000Z"},{"id":24,"titulo":"Ofuscação e seu efeito prático sobre o tempo de análise","resumo":"Medimos o tempo adicional imposto por quatro técnicas de ofuscação a analistas experientes. A ofuscação multiplica o custo de análise, mas nenhuma das técnicas avaliadas impediu a recuperação da lógica alvo.","conteudo":"## Resumo\nMedimos o tempo adicional imposto por quatro técnicas de ofuscação a analistas experientes. A ofuscação multiplica o custo de análise, mas nenhuma das técnicas avaliadas impediu a recuperação da lógica alvo.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Engenharia Reversa do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Marcos Vinícius Ferraz entre 2022 e 2023. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_evento","assunto":"Segurança da Informação","tema":"Engenharia Reversa","palavrasChave":["ofuscação","engenharia reversa","proteção de software","análise"],"idioma":"pt-BR","dataLancamento":"2023-01-16","ano":2023,"veiculo":"Conferência Latino-Americana de Segurança Ofensiva","paginas":"172-183","citacoes":49,"status":"publicado","fotoSeed":"gepiseg-engenharia-reversa-24","imagem":"https://picsum.photos/seed/gepiseg-engenharia-reversa-24/640/360","capa":{"cor":"#2C5282","iniciais":"EN"},"autorPrincipal":{"nome":"Marcos Vinícius Ferraz","url":"json/pesquisador/12.json"},"autores":[{"nome":"Marcos Vinícius Ferraz","url":"json/pesquisador/12.json"}],"pesquisadores":["json/pesquisador/12.json"],"url":"json/artigo/24.json","created":"2023-01-22T12:30:00.000Z"},{"id":25,"titulo":"Segredos em repositório: detecção, rotação e o que fazer com o histórico","resumo":"Avaliamos ferramentas de detecção de segredos em histórico de repositórios e discutimos o que resta a fazer depois do achado. Remover do histórico sem rotacionar a credencial é a resposta mais comum e a menos eficaz.","conteudo":"## Resumo\nAvaliamos ferramentas de detecção de segredos em histórico de repositórios e discutimos o que resta a fazer depois do achado. Remover do histórico sem rotacionar a credencial é a resposta mais comum e a menos eficaz.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em DevSecOps do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Ana Clara Figueiredo, Henrique Barros Pacheco entre 2023 e 2024. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_evento","assunto":"Segurança da Informação","tema":"DevSecOps","palavrasChave":["segredo","repositório","rotação","DevSecOps"],"idioma":"pt-BR","dataLancamento":"2024-08-02","ano":2024,"veiculo":"Workshop de Qualidade e Segurança de Software","paginas":"179-190","citacoes":24,"status":"publicado","fotoSeed":"gepiseg-devsecops-25","imagem":"https://picsum.photos/seed/gepiseg-devsecops-25/640/360","capa":{"cor":"#6B4E9B","iniciais":"DE"},"autorPrincipal":{"nome":"Ana Clara Figueiredo","url":"json/pesquisador/1.json"},"autores":[{"nome":"Ana Clara Figueiredo","url":"json/pesquisador/1.json"},{"nome":"Henrique Barros Pacheco","url":"json/pesquisador/8.json"}],"pesquisadores":["json/pesquisador/1.json","json/pesquisador/8.json"],"url":"json/artigo/25.json","created":"2024-06-06T12:30:00.000Z"},{"id":26,"titulo":"Modelagem de ameaça leve para equipes pequenas","resumo":"Propomos um procedimento de modelagem de ameaça executável em uma hora por equipes sem especialista dedicado. O procedimento foi aplicado em nove equipes e avaliado quanto a cobertura e aderência ao longo de um ano.","conteudo":"## Resumo\nPropomos um procedimento de modelagem de ameaça executável em uma hora por equipes sem especialista dedicado. O procedimento foi aplicado em nove equipes e avaliado quanto a cobertura e aderência ao longo de um ano.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Segurança de Aplicações do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Ana Clara Figueiredo, Eduarda Mattos Vieira entre 2022 e 2023. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"capitulo_livro","assunto":"Segurança da Informação","tema":"Segurança de Aplicações","palavrasChave":["modelagem de ameaça","processo","equipe pequena","STRIDE"],"idioma":"pt-BR","dataLancamento":"2023-03-15","ano":2023,"veiculo":"Engenharia de Software Segura (Editora Universitária)","paginas":"186-197","citacoes":58,"status":"publicado","fotoSeed":"gepiseg-seguranca-de-aplicacoes-26","imagem":"https://picsum.photos/seed/gepiseg-seguranca-de-aplicacoes-26/640/360","capa":{"cor":"#A6761D","iniciais":"SE"},"autorPrincipal":{"nome":"Ana Clara Figueiredo","url":"json/pesquisador/1.json"},"autores":[{"nome":"Ana Clara Figueiredo","url":"json/pesquisador/1.json"},{"nome":"Eduarda Mattos Vieira","url":"json/pesquisador/5.json"}],"pesquisadores":["json/pesquisador/1.json","json/pesquisador/5.json"],"url":"json/artigo/26.json","created":"2023-11-17T12:30:00.000Z"},{"id":27,"titulo":"Limitação de requisições em ambientes serverless: o contador que não é compartilhado","resumo":"Demonstramos que controles de limitação de requisições implementados em memória perdem eficácia em plataformas serverless, onde cada instância mantém o próprio contador. Sob carga paralela, o teto efetivo cresce com o número de instâncias ativas.","conteudo":"## Resumo\nDemonstramos que controles de limitação de requisições implementados em memória perdem eficácia em plataformas serverless, onde cada instância mantém o próprio contador. Sob carga paralela, o teto efetivo cresce com o número de instâncias ativas.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Segurança de Aplicações do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Ana Clara Figueiredo, Carolina Prado Nunes entre 2025 e 2026. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"relatorio_tecnico","assunto":"Segurança da Informação","tema":"Segurança de Aplicações","palavrasChave":["limitação de requisições","serverless","disponibilidade","cota"],"idioma":"pt-BR","dataLancamento":"2026-10-01","ano":2026,"veiculo":"Relatório Técnico GEPISEG","paginas":"193-204","citacoes":2,"status":"publicado","fotoSeed":"gepiseg-seguranca-de-aplicacoes-27","imagem":"https://picsum.photos/seed/gepiseg-seguranca-de-aplicacoes-27/640/360","capa":{"cor":"#1F6F72","iniciais":"SE"},"autorPrincipal":{"nome":"Ana Clara Figueiredo","url":"json/pesquisador/1.json"},"autores":[{"nome":"Ana Clara Figueiredo","url":"json/pesquisador/1.json"},{"nome":"Carolina Prado Nunes","url":"json/pesquisador/3.json"}],"pesquisadores":["json/pesquisador/1.json","json/pesquisador/3.json"],"url":"json/artigo/27.json","created":"2026-04-01T12:30:00.000Z"},{"id":28,"titulo":"Segmentação de rede doméstica como mitigação para dispositivos não confiáveis","resumo":"Avaliamos a eficácia da segmentação de rede doméstica contra movimentação lateral a partir de dispositivos comprometidos. A mitigação é efetiva, mas a complexidade de configuração a torna inacessível ao usuário típico.","conteudo":"## Resumo\nAvaliamos a eficácia da segmentação de rede doméstica contra movimentação lateral a partir de dispositivos comprometidos. A mitigação é efetiva, mas a complexidade de configuração a torna inacessível ao usuário típico.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Segurança em IoT do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Carolina Prado Nunes, Marcos Vinícius Ferraz entre 2022 e 2023. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_periodico","assunto":"Segurança da Informação","tema":"Segurança em IoT","palavrasChave":["IoT","segmentação","rede","mitigação"],"idioma":"pt-BR","dataLancamento":"2023-05-14","ano":2023,"veiculo":"Revista Brasileira de Segurança Computacional","paginas":"200-211","citacoes":40,"status":"publicado","fotoSeed":"gepiseg-seguranca-em-iot-28","imagem":"https://picsum.photos/seed/gepiseg-seguranca-em-iot-28/640/360","capa":{"cor":"#9B3B5A","iniciais":"SE"},"autorPrincipal":{"nome":"Carolina Prado Nunes","url":"json/pesquisador/3.json"},"autores":[{"nome":"Carolina Prado Nunes","url":"json/pesquisador/3.json"},{"nome":"Marcos Vinícius Ferraz","url":"json/pesquisador/12.json"}],"pesquisadores":["json/pesquisador/3.json","json/pesquisador/12.json"],"url":"json/artigo/28.json","created":"2023-09-12T12:30:00.000Z"},{"id":29,"titulo":"Avaliação de maturidade em segurança: o que o número esconde","resumo":"Analisamos criticamente modelos de maturidade em segurança aplicados a nove organizações. Pontuações altas conviveram com lacunas operacionais graves, sugerindo que o instrumento mede documentação, não prática.","conteudo":"## Resumo\nAnalisamos criticamente modelos de maturidade em segurança aplicados a nove organizações. Pontuações altas conviveram com lacunas operacionais graves, sugerindo que o instrumento mede documentação, não prática.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Privacidade e LGPD do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Eduarda Mattos Vieira, Isabela Correia Lima entre 2025 e 2026. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_evento","assunto":"Segurança da Informação","tema":"Privacidade e LGPD","palavrasChave":["maturidade","governança","métrica","avaliação"],"idioma":"pt-BR","dataLancamento":"2026-12-27","ano":2026,"veiculo":"Simpósio Brasileiro em Segurança da Informação e de Sistemas Computacionais","paginas":"207-218","citacoes":5,"status":"publicado","fotoSeed":"gepiseg-privacidade-e-lgpd-29","imagem":"https://picsum.photos/seed/gepiseg-privacidade-e-lgpd-29/640/360","capa":{"cor":"#4A5568","iniciais":"PR"},"autorPrincipal":{"nome":"Eduarda Mattos Vieira","url":"json/pesquisador/5.json"},"autores":[{"nome":"Eduarda Mattos Vieira","url":"json/pesquisador/5.json"},{"nome":"Isabela Correia Lima","url":"json/pesquisador/9.json"}],"pesquisadores":["json/pesquisador/5.json","json/pesquisador/9.json"],"url":"json/artigo/29.json","created":"2026-02-23T12:30:00.000Z"},{"id":30,"titulo":"Recuperação de chave a partir de despejo de memória em aplicações móveis","resumo":"Demonstramos a recuperação de material criptográfico a partir de despejos de memória de aplicações móveis em repouso. O tempo de permanência da chave em memória varia de segundos a toda a sessão, conforme a biblioteca utilizada.","conteudo":"## Resumo\nDemonstramos a recuperação de material criptográfico a partir de despejos de memória de aplicações móveis em repouso. O tempo de permanência da chave em memória varia de segundos a toda a sessão, conforme a biblioteca utilizada.\n\n## Introdução\nEste trabalho integra a linha de pesquisa em Forense Digital do GEPISEG. A investigação partiu de uma lacuna observada na prática: resultados publicados nesta frente raramente reportam o custo de adoção, o que dificulta a decisão de quem precisa aplicá-los.\n\n## Metodologia\nA coleta foi conduzida por Gabriela Souza Andrade, Bruno Tavares Lemos entre 2023 e 2024. Os dados foram tratados de modo a permitir replicação, e os limites do procedimento estão declarados junto aos resultados em vez de omitidos.\n\n## Resultados e discussão\nOs achados reforçam que, nesta frente, o fator limitante costuma ser operacional e não técnico. As tabelas e o tratamento estatístico completo acompanham a publicação no veículo de origem.\n\n## Considerações finais\nO trabalho abre continuidade em duas direções: ampliar a amostra e avaliar a persistência do efeito ao longo do tempo.","tipo":"artigo_evento","assunto":"Segurança da Informação","tema":"Forense Digital","palavrasChave":["forense","memória","chave criptográfica","móvel"],"idioma":"pt-BR","dataLancamento":"2024-07-13","ano":2024,"veiculo":"Workshop de Criptografia e Segurança Computacional","paginas":"214-225","citacoes":30,"status":"publicado","fotoSeed":"gepiseg-forense-digital-30","imagem":"https://picsum.photos/seed/gepiseg-forense-digital-30/640/360","capa":{"cor":"#2F6F4E","iniciais":"FO"},"autorPrincipal":{"nome":"Gabriela Souza Andrade","url":"json/pesquisador/7.json"},"autores":[{"nome":"Gabriela Souza Andrade","url":"json/pesquisador/7.json"},{"nome":"Bruno Tavares Lemos","url":"json/pesquisador/2.json"}],"pesquisadores":["json/pesquisador/7.json","json/pesquisador/2.json"],"url":"json/artigo/30.json","created":"2024-07-07T12:30:00.000Z"}]
+};
+
+</script>
+<script>
+/**
+ * GEPISEG — cliente de dados para as telas.
+ *
+ * O contrato segue a Rick and Morty API: listagem devolve `{ info, results }`,
+ * recurso unico devolve o objeto cru, relacao viaja como caminho de arquivo,
+ * e erro devolve
+ * `{ error: "..." }` com status 404.
+ *
+ * REGRA DESTE ARQUIVO: ele nao transforma dado.
+ * O que esta em `artigos.json` e `pesquisadores.json` JA E a resposta — campo
+ * por campo, do jeito que sai. Aqui so acontecem tres coisas: filtrar, recortar
+ * a pagina e montar o bloco `info`. Nenhum campo e renomeado, calculado ou
+ * acrescentado no caminho. Entao o que voce inspeciona no JSON e exatamente o
+ * que chega na sua tela.
+ *
+ * COMO USAR
+ *
+ *   <script src="js/dados.js"><\/script>
+ *   <script src="js/gepiseg-api.js"><\/script>
+ *   <script>
+ *     const api = GepisegAPI.criar();
+ *
+ *     api.artigos.listar({ q: 'phishing' }).then(function (r) {
+ *       console.log(r.info);      // { count, pages, next, prev }
+ *       console.log(r.results);   // os artigos
+ *     });
+ *   <\/script>
+ *
+ * Para ler a pasta json/ em vez do dados.js (precisa de servidor local):
+ *
+ *   const api = await GepisegAPI.carregar();
+ */
+
+(function (global) {
+  'use strict';
+
+  /* ================================================================
+   * Erro — mesmo formato da referencia: { error: "mensagem" }
+   * ================================================================ */
+
+  function ErroApi(status, mensagem) {
+    const e = new Error(mensagem);
+    e.name = 'ErroApi';
+    e.status = status;
+    e.corpo = { error: mensagem };
+    return e;
+  }
+
+  /** Usado quando o filtro nao casa com nada. Na referencia isso e 404, nao 200 com lista vazia. */
+  const NADA_AQUI = 'Não há nada aqui';
+
+  /* ================================================================
+   * Utilitarios
+   * ================================================================ */
+
+  /**
+   * Comparacao sem acento e sem caixa.
+   *
+   * Sem isso, procurar "seguranca" nao acha "segurança" — e o aluno digita das
+   * duas formas. A normalizacao NFD separa a letra do acento; o replace tira
+   * so os acentos.
+   */
+  function normalizar(texto) {
+    return String(texto == null ? '' : texto)
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .toLowerCase();
+  }
+
+  function contem(texto, alvo) {
+    return normalizar(texto).indexOf(normalizar(alvo)) !== -1;
+  }
+
+  /**
+   * Copia defensiva. Nao muda a forma do objeto — so impede que a tela altere
+   * sem querer a base de dados compartilhada.
+   */
+  function copiar(valor) {
+    return JSON.parse(JSON.stringify(valor));
+  }
+
+  /** Lista de valores distintos, ordenada — serve para montar <select>. */
+  function distintos(lista, pegar) {
+    const vistos = Object.create(null);
+    lista.forEach(function (item) {
+      const v = pegar(item);
+      (Array.isArray(v) ? v : [v]).forEach(function (x) {
+        if (x !== null && x !== undefined && x !== '') vistos[x] = true;
+      });
+    });
+    return Object.keys(vistos).sort(function (a, b) {
+      return a.localeCompare(b, 'pt-BR');
+    });
+  }
+
+  /**
+   * Tira o id numérico de uma referência.
+   *
+   *   "json/pesquisador/7.json"  ->  7
+   *   7                          ->  7
+   *
+   * Existe porque a referência entre recursos é o caminho do arquivo, e a tela
+   * às vezes filtra pelo id solto (`{ pesquisador: 7 }`), às vezes pela
+   * referência inteira que acabou de ler do dado. As duas formas têm que valer.
+   */
+  function idDaRef(ref) {
+    if (ref && typeof ref === 'object' && ref.url) ref = ref.url;
+    const ultimo = String(ref).split('/').pop();
+    const n = parseInt(ultimo, 10);
+    return isNaN(n) ? null : n;
+  }
+
+  /** Monta a query string de `next`/`prev` preservando os filtros em uso. */
+  function queryDe(filtros, pagina) {
+    const partes = ['page=' + pagina];
+    Object.keys(filtros).forEach(function (chave) {
+      if (chave === 'page' || chave === 'pagina' || chave === 'porPagina') return;
+      const v = filtros[chave];
+      if (v === undefined || v === null || v === '') return;
+      partes.push(encodeURIComponent(chave) + '=' + encodeURIComponent(v));
+    });
+    return '?' + partes.join('&');
+  }
+
+  /* ================================================================
+   * Ordenacoes
+   * ================================================================ */
+
+  const ORDENS_ARTIGO = {
+    recentes: function (a, b) { return b.dataLancamento.localeCompare(a.dataLancamento); },
+    antigos: function (a, b) { return a.dataLancamento.localeCompare(b.dataLancamento); },
+    citacoes: function (a, b) { return b.citacoes - a.citacoes; },
+    titulo: function (a, b) { return a.titulo.localeCompare(b.titulo, 'pt-BR'); },
+  };
+
+  const ORDENS_PESQUISADOR = {
+    nome: function (a, b) { return a.nome.localeCompare(b.nome, 'pt-BR'); },
+    artigos: function (a, b) { return b.metricas.totalArtigos - a.metricas.totalArtigos; },
+    citacoes: function (a, b) { return b.metricas.totalCitacoes - a.metricas.totalCitacoes; },
+  };
+
+  /* ================================================================
+   * Filtros
+   * ================================================================ */
+
+  function filtrarArtigos(artigos, f) {
+    let r = artigos.slice();
+
+    // Busca livre: titulo, resumo, tema, veiculo, palavra-chave e nome de autor.
+    if (f.q) {
+      r = r.filter(function (a) {
+        return (
+          contem(a.titulo, f.q) ||
+          contem(a.resumo, f.q) ||
+          contem(a.tema, f.q) ||
+          contem(a.veiculo, f.q) ||
+          a.palavrasChave.some(function (p) { return contem(p, f.q); }) ||
+          a.autores.some(function (p) { return contem(p.nome, f.q); })
+        );
+      });
+    }
+
+    // Aceita o id solto (7) ou a referência inteira ("json/pesquisador/7.json").
+    if (f.pesquisador !== undefined && f.pesquisador !== '') {
+      const alvo = idDaRef(f.pesquisador);
+      r = r.filter(function (a) {
+        return a.pesquisadores.some(function (ref) { return idDaRef(ref) === alvo; });
+      });
+    }
+
+    if (f.autorPrincipal !== undefined && f.autorPrincipal !== '') {
+      const alvo = idDaRef(f.autorPrincipal);
+      r = r.filter(function (a) { return idDaRef(a.autorPrincipal.url) === alvo; });
+    }
+
+    if (f.tema) r = r.filter(function (a) { return contem(a.tema, f.tema); });
+    if (f.veiculo) r = r.filter(function (a) { return contem(a.veiculo, f.veiculo); });
+    if (f.tipo) r = r.filter(function (a) { return a.tipo === f.tipo; });
+    if (f.status) r = r.filter(function (a) { return a.status === f.status; });
+
+    if (f.palavraChave) {
+      r = r.filter(function (a) {
+        return a.palavrasChave.some(function (p) { return contem(p, f.palavraChave); });
+      });
+    }
+
+    if (f.ano) {
+      const ano = parseInt(f.ano, 10);
+      r = r.filter(function (a) { return a.ano === ano; });
+    }
+    // Comparar string funciona porque YYYY-MM-DD ordena igual a data.
+    if (f.de) r = r.filter(function (a) { return a.dataLancamento >= f.de; });
+    if (f.ate) r = r.filter(function (a) { return a.dataLancamento <= f.ate; });
+
+    if (f.citacoesMinimas) {
+      const min = parseInt(f.citacoesMinimas, 10);
+      r = r.filter(function (a) { return a.citacoes >= min; });
+    }
+
+    r.sort(ORDENS_ARTIGO[f.ordenar] || ORDENS_ARTIGO.recentes);
+    return r;
+  }
+
+  function filtrarPesquisadores(pesquisadores, f) {
+    let r = pesquisadores.slice();
+
+    if (f.q) {
+      r = r.filter(function (p) {
+        return (
+          contem(p.nome, f.q) ||
+          contem(p.bio, f.q) ||
+          contem(p.linhaPesquisa, f.q) ||
+          p.areas.some(function (a) { return contem(a, f.q); })
+        );
+      });
+    }
+
+    if (f.nome) r = r.filter(function (p) { return contem(p.nome, f.nome); });
+    if (f.area) {
+      r = r.filter(function (p) {
+        return p.areas.some(function (a) { return contem(a, f.area); });
+      });
+    }
+    if (f.titulacao) r = r.filter(function (p) { return contem(p.titulacao, f.titulacao); });
+    if (f.ativo !== undefined) r = r.filter(function (p) { return p.ativo === f.ativo; });
+
+    r.sort(ORDENS_PESQUISADOR[f.ordenar] || ORDENS_PESQUISADOR.nome);
+    return r;
+  }
+
+  /* ================================================================
+   * Fabrica
+   * ================================================================ */
+
+  /**
+   * @param {object} [opcoes]
+   * @param {object} [opcoes.dados]     { base, pesquisadores, artigos }. Omitido, usa window.GEPISEG_DADOS.
+   * @param {number} [opcoes.atrasoMs] Atraso artificial por chamada. Default 120.
+   *        Serve para a tela precisar de estado de carregando — com resposta
+   *        instantanea e facil esquecer, e a tela quebra contra uma API real.
+   *        Coloque 0 enquanto estiver depurando.
+   */
+  function criar(opcoes) {
+    opcoes = opcoes || {};
+
+    const base = opcoes.dados || global.GEPISEG_DADOS;
+    if (!base || !base.pesquisadores || !base.artigos) {
+      throw new Error(
+        'Dados não encontrados. Inclua <script src="dados.js"><\/script> antes ' +
+          'deste arquivo, ou use GepisegAPI.carregar().',
+      );
+    }
+
+    const atraso = opcoes.atrasoMs === undefined ? 120 : opcoes.atrasoMs;
+
+    /*
+     * Arquivo de cada coleção. É para onde `info.next` e `info.prev` apontam.
+     *
+     * A referência entre recursos é o caminho do arquivo — `json/artigo/7.json`
+     * —, então o link de página segue a mesma ideia: aponta para o arquivo que
+     * existe, com os filtros na query. O arquivo em si não é paginado; quem lê
+     * a query é este cliente.
+     */
+    const ARQUIVO_COLECAO = {
+      pesquisador: 'json/pesquisadores.json',
+      artigo: 'json/artigos.json',
+    };
+    const PESQUISADORES = base.pesquisadores;
+    const ARTIGOS = base.artigos;
+
+    function responder(valor) {
+      return new Promise(function (resolve) {
+        if (atraso > 0) setTimeout(function () { resolve(valor); }, atraso);
+        else resolve(valor);
+      });
+    }
+
+    function recusar(erro) {
+      return new Promise(function (_resolve, reject) {
+        if (atraso > 0) setTimeout(function () { reject(erro); }, atraso);
+        else reject(erro);
+      });
+    }
+
+    /**
+     * Recorta a pagina e monta o `info`. E a unica coisa que este arquivo
+     * produz que nao estava no JSON — e so porque pagina nao da para vir
+     * pre-calculada: ela depende dos filtros que a tela escolheu.
+     */
+    function envelopar(recurso, achados, filtros) {
+      const porPagina = Math.min(100, Math.max(1, parseInt(filtros.porPagina, 10) || 12));
+      const paginas = Math.max(1, Math.ceil(achados.length / porPagina));
+      const pagina = Math.min(paginas, Math.max(1, parseInt(filtros.pagina || filtros.page, 10) || 1));
+      const inicio = (pagina - 1) * porPagina;
+
+      return {
+        info: {
+          count: achados.length,
+          pages: paginas,
+          next: pagina < paginas
+            ? ARQUIVO_COLECAO[recurso] + queryDe(filtros, pagina + 1)
+            : null,
+          prev: pagina > 1
+            ? ARQUIVO_COLECAO[recurso] + queryDe(filtros, pagina - 1)
+            : null,
+        },
+        results: copiar(achados.slice(inicio, inicio + porPagina)),
+      };
+    }
+
+    /** Aceita id (7), referência inteira, ou "1,2,3". Devolve a lista de ids. */
+    function idsDe(entrada) {
+      const bruto = Array.isArray(entrada) ? entrada : String(entrada).split(',');
+      return bruto.map(function (x) { return idDaRef(String(x).trim()); });
+    }
+
+    function buscarUm(colecao, id) {
+      return colecao.find(function (r) { return r.id === id; });
+    }
+
+    /**
+     * Um ou varios recursos por id.
+     * Como na referencia: um id devolve o objeto, varios devolvem array, e id
+     * inexistente e 404 — nao `undefined` nem lista vazia.
+     */
+    function porId(colecao, entrada, nomeRecurso) {
+      const ids = idsDe(entrada);
+
+      if (ids.some(function (n) { return n === null; })) {
+        return recusar(ErroApi(404, nomeRecurso + ' não encontrado'));
+      }
+
+      const achados = ids.map(function (id) { return buscarUm(colecao, id); });
+      if (achados.some(function (a) { return !a; })) {
+        return recusar(ErroApi(404, nomeRecurso + ' não encontrado'));
+      }
+
+      return responder(ids.length === 1 ? copiar(achados[0]) : copiar(achados));
+    }
+
+    function listar(colecao, filtrar, recurso, filtros) {
+      filtros = filtros || {};
+      const achados = filtrar(colecao, filtros);
+      if (achados.length === 0) return recusar(ErroApi(404, NADA_AQUI));
+      return responder(envelopar(recurso, achados, filtros));
+    }
+
+    return {
+      pesquisadores: {
+        listar: function (filtros) {
+          return listar(PESQUISADORES, filtrarPesquisadores, 'pesquisador', filtros);
+        },
+        porId: function (entrada) {
+          return porId(PESQUISADORES, entrada, 'Pesquisador');
+        },
+      },
+
+      artigos: {
+        listar: function (filtros) {
+          return listar(ARTIGOS, filtrarArtigos, 'artigo', filtros);
+        },
+        porId: function (entrada) {
+          return porId(ARTIGOS, entrada, 'Artigo');
+        },
+      },
+
+      /**
+       * Resolve qualquer URL de relação para o recurso inteiro.
+       *
+       * Com relação em URL, a tela lê `artigo.pesquisadores[0]` e precisa
+       * transformar aquilo num objeto. É o mesmo passo que você daria contra a
+       * API real — aqui ele é local, mas a chamada da tela é idêntica.
+       *
+       *   api.seguir(artigo.autorPrincipal.url).then(mostrarAutor);
+       *   api.seguir(pesquisador.artigos).then(mostrarLista);   // aceita lista
+       */
+      seguir: function seguir(ref) {
+        // Nomeada de propósito: `const { seguir } = api` continua funcionando.
+        // Com `this.seguir` aqui, destruturar quebraria a recursão da lista.
+        if (Array.isArray(ref)) {
+          return Promise.all(ref.map(function (r) { return seguir(r); }));
+        }
+
+        // Aceita a referência solta ou o objeto que a carrega — `artigo.autores`
+        // e `pessoa.artigos` vêm como { nome, url } e { titulo, url }, e exigir
+        // que a tela escreva `.url` toda vez seria atrito sem motivo.
+        if (ref && typeof ref === 'object' && ref.url) ref = ref.url;
+
+        // "json/pesquisador/7.json" -> tipo "pesquisador", id 7
+        const partes = String(ref).split('/');
+        const id = idDaRef(partes.pop());
+        const tipo = partes.pop();
+
+        if (tipo === 'artigo') return porId(ARTIGOS, id, 'Artigo');
+        if (tipo === 'pesquisador') return porId(PESQUISADORES, id, 'Pesquisador');
+        return recusar(ErroApi(404, 'Recurso não encontrado'));
+      },
+
+      /**
+       * Valores distintos para montar os filtros da tela. Não é um recurso da
+       * referência — é um atalho para não chumbar as opções no HTML e deixá-las
+       * desatualizadas quando o dado mudar.
+       */
+      filtros: function () {
+        return responder({
+          temas: distintos(ARTIGOS, function (a) { return a.tema; }),
+          veiculos: distintos(ARTIGOS, function (a) { return a.veiculo; }),
+          tipos: distintos(ARTIGOS, function (a) { return a.tipo; }),
+          palavrasChave: distintos(ARTIGOS, function (a) { return a.palavrasChave; }),
+          anos: distintos(ARTIGOS, function (a) { return String(a.ano); }).sort().reverse(),
+          areas: distintos(PESQUISADORES, function (p) { return p.areas; }),
+          titulacoes: distintos(PESQUISADORES, function (p) { return p.titulacao; }),
+        });
+      },
+    };
+  }
+
+  /**
+   * Versão que busca os .json em vez de usar o dados.js.
+   * Precisa de servidor local (`npx serve`): o navegador bloqueia fetch de
+   * arquivo aberto com duplo clique.
+   */
+  function carregar(raiz, opcoes) {
+    // Padrao 'json/': e onde os arquivos ficam no pacote entregue.
+    const dir = (raiz || 'json/').replace(/\/?$/, '/');
+    return Promise.all([
+      fetch(dir + 'pesquisadores.json').then(function (r) { return r.json(); }),
+      fetch(dir + 'artigos.json').then(function (r) { return r.json(); }),
+    ]).then(function (partes) {
+      return criar(
+        Object.assign({}, opcoes, {
+          dados: { pesquisadores: partes[0], artigos: partes[1] },
+        }),
+      );
+    });
+  }
+
+  global.GepisegAPI = { criar: criar, carregar: carregar };
+
+  // Também funciona com require() no Node, para testar fora do navegador.
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = global.GepisegAPI;
+  }
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+(function () {
+  'use strict';
+
+  /* ================================================================
+   * Tema
+   * ================================================================ */
+
+  const raizHtml = document.documentElement;
+  const btnTema = document.getElementById('btnTema');
+
+  function escuroAgora() {
+    const posto = raizHtml.getAttribute('data-tema');
+    if (posto) return posto === 'escuro';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  function rotularTema() {
+    btnTema.textContent = escuroAgora() ? 'Tema claro' : 'Tema escuro';
+  }
+
+  const salvo = (function () {
+    try { return localStorage.getItem('gepiseg-tema'); } catch (e) { return null; }
+  })();
+  if (salvo) raizHtml.setAttribute('data-tema', salvo);
+  rotularTema();
+
+  btnTema.addEventListener('click', function () {
+    const novo = escuroAgora() ? 'claro' : 'escuro';
+    raizHtml.setAttribute('data-tema', novo);
+    try { localStorage.setItem('gepiseg-tema', novo); } catch (e) { /* modo privado */ }
+    rotularTema();
+  });
+
+  /* ================================================================
+   * Catálogo de operações.
+   *
+   * Cada entrada descreve uma função pública de gepiseg-api.js. A página
+   * inteira — índice, cartão e playground — é desenhada a partir desta lista.
+   * `fonte` em um parâmetro é a chave devolvida por api.filtros(), e vira
+   * uma caixa de seleção preenchida com os valores que existem no dado.
+   * ================================================================ */
+
+  const PAGINACAO = [
+    { nome: 'pagina', tipo: 'number', ajuda: 'default 1 · aceita `page`' },
+    { nome: 'porPagina', tipo: 'number', ajuda: '1 a 100 · default 12' },
+  ];
+
+  const OPS = [
+    {
+      id: 'pesquisadores-listar',
+      grupo: 'pesquisadores',
+      pill: 'lista',
+      assinatura: 'api.pesquisadores.listar(filtros)',
+      resumo: '{ info, results }',
+      descricao: 'Filtros opcionais e combináveis. Texto compara sem acento e sem caixa.',
+      params: [
+        { nome: 'q', tipo: 'text', ajuda: 'nome, bio, linha de pesquisa, áreas' },
+        { nome: 'nome', tipo: 'text', ajuda: 'trecho do nome' },
+        { nome: 'area', tipo: 'select', fonte: 'areas', ajuda: 'qualquer área que contenha' },
+        { nome: 'titulacao', tipo: 'select', fonte: 'titulacoes', ajuda: 'trecho' },
+        { nome: 'ativo', tipo: 'bool', ajuda: 'booleano estrito' },
+        { nome: 'ordenar', tipo: 'enum', opcoes: ['nome', 'artigos', 'citacoes'], ajuda: 'default nome' },
+      ].concat(PAGINACAO),
+      chamar: function (api, f) { return api.pesquisadores.listar(f); },
+      codigo: function (f) { return 'api.pesquisadores.listar(' + objeto(f) + ')'; },
+      exemplo: { ordenar: 'citacoes', porPagina: '5' },
+    },
+
+    {
+      id: 'pesquisadores-porid',
+      grupo: 'pesquisadores',
+      pill: 'item',
+      assinatura: 'api.pesquisadores.porId(entrada)',
+      resumo: 'objeto, array ou 404',
+      descricao: 'Aceita id (<code>3</code>), caminho (<code>json/pesquisador/3.json</code>) ou lista (<code>1,2,3</code>). Vários devolvem array.',
+      params: [{ nome: 'entrada', tipo: 'text', obrigatorio: true, ajuda: 'id, caminho ou lista' }],
+      chamar: function (api, f) { return api.pesquisadores.porId(f.entrada); },
+      codigo: function (f) { return 'api.pesquisadores.porId(' + valor(f.entrada) + ')'; },
+      exemplo: { entrada: '3' },
+    },
+
+    {
+      id: 'artigos-listar',
+      grupo: 'artigos',
+      pill: 'lista',
+      assinatura: 'api.artigos.listar(filtros)',
+      resumo: '{ info, results }',
+      descricao: 'Todos os filtros se somam: <code>{ tema, ano, citacoesMinimas }</code> aplica os três.',
+      params: [
+        { nome: 'q', tipo: 'text', ajuda: 'título, resumo, tema, veículo, palavra-chave, autor' },
+        { nome: 'pesquisador', tipo: 'text', ajuda: 'id ou caminho · qualquer autoria' },
+        { nome: 'autorPrincipal', tipo: 'text', ajuda: 'id ou caminho · só primeiro autor' },
+        { nome: 'tema', tipo: 'select', fonte: 'temas', ajuda: 'trecho' },
+        { nome: 'veiculo', tipo: 'select', fonte: 'veiculos', ajuda: 'trecho' },
+        { nome: 'tipo', tipo: 'select', fonte: 'tipos', ajuda: 'igualdade exata' },
+        { nome: 'status', tipo: 'enum', opcoes: ['publicado'], ajuda: 'só publicado existe no pacote' },
+        { nome: 'palavraChave', tipo: 'select', fonte: 'palavrasChave', ajuda: 'trecho' },
+        { nome: 'ano', tipo: 'select', fonte: 'anos', ajuda: 'ano exato' },
+        { nome: 'de', tipo: 'date', ajuda: 'dataLancamento >=' },
+        { nome: 'ate', tipo: 'date', ajuda: 'dataLancamento <=' },
+        { nome: 'citacoesMinimas', tipo: 'number', ajuda: 'citações >= N' },
+        { nome: 'ordenar', tipo: 'enum', opcoes: ['recentes', 'antigos', 'citacoes', 'titulo'], ajuda: 'default recentes' },
+      ].concat(PAGINACAO),
+      chamar: function (api, f) { return api.artigos.listar(f); },
+      codigo: function (f) { return 'api.artigos.listar(' + objeto(f) + ')'; },
+      exemplo: { ano: '2025', ordenar: 'citacoes', porPagina: '5' },
+    },
+
+    {
+      id: 'artigos-porid',
+      grupo: 'artigos',
+      pill: 'item',
+      assinatura: 'api.artigos.porId(entrada)',
+      resumo: 'objeto, array ou 404',
+      descricao: 'Mesma regra do porId de pesquisador. O item traz <code>conteudo</code> em Markdown, que não vem na listagem.',
+      params: [{ nome: 'entrada', tipo: 'text', obrigatorio: true, ajuda: 'id, caminho ou lista' }],
+      chamar: function (api, f) { return api.artigos.porId(f.entrada); },
+      codigo: function (f) { return 'api.artigos.porId(' + valor(f.entrada) + ')'; },
+      exemplo: { entrada: '7' },
+    },
+
+    {
+      id: 'seguir',
+      grupo: 'relações',
+      classe: 'util',
+      pill: 'util',
+      assinatura: 'api.seguir(ref)',
+      resumo: 'caminho → recurso',
+      descricao: 'Aceita a referência, o objeto que a carrega (<code>{ nome, url }</code>) ou uma lista — lista devolve array.',
+      params: [{ nome: 'ref', tipo: 'text', obrigatorio: true, ajuda: 'ex.: json/artigo/7.json' }],
+      chamar: function (api, f) { return api.seguir(f.ref); },
+      codigo: function (f) { return 'api.seguir(' + valor(f.ref) + ')'; },
+      exemplo: { ref: 'json/pesquisador/4.json' },
+      extra: '<pre><code>api.artigos.porId(7)\n  .then(a =&gt; api.seguir(a.autores))   // array de pesquisadores</code></pre>',
+    },
+
+    {
+      id: 'filtros',
+      grupo: 'relações',
+      classe: 'util',
+      pill: 'util',
+      assinatura: 'api.filtros()',
+      resumo: 'valores distintos',
+      descricao: 'Devolve temas, veiculos, tipos, palavrasChave, anos, areas e titulacoes — para montar as caixas de seleção sem chumbar opção no HTML. As desta página saem daqui.',
+      params: [],
+      chamar: function (api) { return api.filtros(); },
+      codigo: function () { return 'api.filtros()'; },
+      exemplo: {},
+    },
+
+    {
+      id: 'criar',
+      grupo: 'fábrica',
+      classe: 'fabrica',
+      pill: 'fábrica',
+      assinatura: 'GepisegAPI.criar(opcoes)',
+      resumo: 'síncrona · usa dados.js',
+      descricao: '<code>atrasoMs</code> é o atraso artificial por chamada (default 120), para a tela precisar de estado de carregando. Sem dados carregados, lança erro.',
+      params: [{ nome: 'atrasoMs', tipo: 'number', ajuda: '0 para depurar' }],
+      chamar: function (_api, f) {
+        const op = {};
+        if (f.atrasoMs !== undefined) op.atrasoMs = Number(f.atrasoMs);
+        GepisegAPI.criar(op);
+        return Promise.resolve({
+          criada: true,
+          atrasoMs: op.atrasoMs === undefined ? 120 : op.atrasoMs,
+          metodos: ['pesquisadores.listar', 'pesquisadores.porId', 'artigos.listar', 'artigos.porId', 'seguir', 'filtros'],
+        });
+      },
+      codigo: function (f) { return 'const api = GepisegAPI.criar(' + objeto(f) + ')'; },
+      exemplo: { atrasoMs: '0' },
+    },
+
+    {
+      id: 'carregar',
+      grupo: 'fábrica',
+      classe: 'fabrica',
+      pill: 'fábrica',
+      assinatura: 'GepisegAPI.carregar(raiz, opcoes)',
+      resumo: 'Promise · lê json/',
+      descricao: 'Busca os .json por fetch. Precisa de servidor local e da pasta <code>json/</code> ao lado — sem isso (arquivo aberto com dois cliques, ou cópia solta do HTML) é a única chamada desta página que falha.',
+      params: [{ nome: 'raiz', tipo: 'text', ajuda: 'default json/' }],
+      chamar: function (_api, f) {
+        return GepisegAPI.carregar(f.raiz || 'json/', { atrasoMs: 0 }).then(function () {
+          return { carregada: true, raiz: f.raiz || 'json/' };
+        });
+      },
+      codigo: function (f) {
+        return 'const api = await GepisegAPI.carregar(' + (f.raiz ? valor(f.raiz) : "'json/'") + ')';
+      },
+      exemplo: { raiz: 'json/' },
+    },
+  ];
+
+  /* ================================================================
+   * Código mostrado na tela
+   * ================================================================ */
+
+  function valor(v) {
+    if (v === undefined || v === '') return '';
+    if (v === 'true' || v === 'false') return v;
+    if (String(Number(v)) === String(v).trim()) return String(v).trim();
+    return "'" + String(v).replace(/'/g, "\\'") + "'";
+  }
+
+  function objeto(f) {
+    const chaves = Object.keys(f);
+    if (!chaves.length) return '{}';
+    return '{ ' + chaves.map(function (k) { return k + ': ' + valor(f[k]); }).join(', ') + ' }';
+  }
+
+  /* ================================================================
+   * Esquema inferido de um registro real
+   * ================================================================ */
+
+  function tipoDe(v) {
+    if (v === null) return 'null';
+    if (Array.isArray(v)) return v.length ? 'array de ' + tipoDe(v[0]) : 'array vazio';
+    if (typeof v === 'object') return 'objeto';
+    if (typeof v === 'number') return 'número';
+    if (typeof v === 'boolean') return 'booleano';
+    return 'texto';
+  }
+
+  function amostra(v) {
+    const s = JSON.stringify(v);
+    if (s === undefined) return '';
+    return s.length > 80 ? s.slice(0, 77) + '…' : s;
+  }
+
+  function tabelaEsquema(obj) {
+    const linhas = Object.keys(obj).map(function (k) {
+      const v = obj[k];
+      const det = Array.isArray(v) && v.length && typeof v[0] === 'object' ? amostra(v[0]) : amostra(v);
+      return '<tr><td><code>' + k + '</code></td><td class="v">' + tipoDe(v) +
+        '</td><td class="v">' + escapar(det) + '</td></tr>';
+    });
+    return '<table><thead><tr><th>Campo</th><th>Tipo</th><th>Exemplo</th></tr></thead><tbody>' +
+      linhas.join('') + '</tbody></table>';
+  }
+
+  function escapar(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  /* ================================================================
+   * Montagem
+   * ================================================================ */
+
+  let api = null;
+  let opcoesFiltro = {};
+
+  const elOps = document.getElementById('ops');
+  const elIndice = document.getElementById('indice');
+
+  function campoHtml(op, p) {
+    const id = 'c-' + op.id + '-' + p.nome;
+    let controle;
+
+    if (p.tipo === 'select') {
+      controle = '<select id="' + id + '" data-param="' + p.nome + '"><option value="">—</option></select>';
+    } else if (p.tipo === 'enum') {
+      controle = '<select id="' + id + '" data-param="' + p.nome + '"><option value="">—</option>' +
+        p.opcoes.map(function (o) { return '<option value="' + o + '">' + o + '</option>'; }).join('') +
+        '</select>';
+    } else if (p.tipo === 'bool') {
+      controle = '<select id="' + id + '" data-param="' + p.nome + '"><option value="">—</option>' +
+        '<option value="true">true</option><option value="false">false</option></select>';
+    } else if (p.tipo === 'number') {
+      controle = '<input type="number" id="' + id + '" data-param="' + p.nome + '">';
+    } else if (p.tipo === 'date') {
+      controle = '<input type="date" id="' + id + '" data-param="' + p.nome + '">';
+    } else {
+      controle = '<input type="text" id="' + id + '" data-param="' + p.nome + '">';
+    }
+
+    return '<div class="campo"><label class="nome" for="' + id + '">' + p.nome +
+      ' <span class="tipo">' + p.tipo + (p.obrigatorio ? ' · obrigatório' : '') + '</span></label>' +
+      controle + '<div class="ajuda">' + escapar(p.ajuda) + '</div></div>';
+  }
+
+  function opHtml(op) {
+    const params = op.params.length
+      ? '<h4 class="rotulo">Parâmetros</h4><div class="params">' +
+        op.params.map(function (p) { return campoHtml(op, p); }).join('') + '</div>'
+      : '';
+
+    return '<section class="op' + (op.classe ? ' ' + op.classe : '') + '" id="' + op.id +
+      '" data-busca="' + escapar((op.assinatura + ' ' + op.resumo).toLowerCase()) + '">' +
+      '<div class="cabeca">' +
+        '<span class="pill">' + op.pill + '</span>' +
+        '<span class="assinatura">' + escapar(op.assinatura) + '</span>' +
+        '<span class="resumo">' + escapar(op.resumo) + '</span>' +
+        '<span class="seta">▾</span>' +
+      '</div>' +
+      '<div class="corpo">' +
+        '<p class="intro">' + op.descricao + '</p>' +
+        (op.extra || '') +
+        params +
+        '<div class="botoes">' +
+          '<button class="acao" data-exec>Executar</button>' +
+          '<button class="suave" data-exemplo>Exemplo</button>' +
+          '<button class="suave" data-limpar>Limpar</button>' +
+        '</div>' +
+        '<h4 class="rotulo">Chamada</h4>' +
+        '<pre><code data-codigo>' + escapar(op.codigo({})) + '</code></pre>' +
+        '<h4 class="rotulo">Resposta</h4>' +
+        '<div class="resposta">' +
+          '<div class="topo">' +
+            '<span class="status neutro" data-status>—</span>' +
+            '<span data-meta>execute para ver o JSON</span>' +
+            '<span style="flex:1"></span>' +
+            '<button class="suave" data-copiar>Copiar</button>' +
+            '<button class="suave" data-baixar>Baixar .json</button>' +
+            '<button class="suave" data-expandir>Expandir</button>' +
+          '</div>' +
+          '<pre class="json" data-json>—</pre>' +
+        '</div>' +
+      '</div>' +
+      '</section>';
+  }
+
+  function montar() {
+    const grupos = [];
+    OPS.forEach(function (op) {
+      let g = grupos.filter(function (x) { return x.nome === op.grupo; })[0];
+      if (!g) { g = { nome: op.grupo, ops: [] }; grupos.push(g); }
+      g.ops.push(op);
+    });
+
+    elOps.innerHTML = grupos.map(function (g) {
+      return '<h2 class="secao" id="s-' + slug(g.nome) + '">' + g.nome + '</h2>' +
+        g.ops.map(opHtml).join('');
+    }).join('');
+
+    elIndice.innerHTML = grupos.map(function (g) {
+      return '<div class="grupo">' + g.nome + '</div>' +
+        g.ops.map(function (op) {
+          return '<a href="#' + op.id + '">' + escapar(curto(op.assinatura)) + '</a>';
+        }).join('');
+    }).join('') +
+      '<div class="grupo">referência</div><a href="#s-esquemas">esquemas</a><a href="#s-erros">erros</a>';
+
+    OPS.forEach(ligar);
+
+    // Os dois cartões de esquema abrem/fecham igual aos de operação.
+    ['esq-pesquisador', 'esq-artigo'].forEach(function (id) {
+      const el = document.getElementById(id);
+      el.querySelector('.cabeca').addEventListener('click', function () { el.classList.toggle('aberta'); });
+    });
+  }
+
+  function slug(s) {
+    return s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+  }
+  function curto(assinatura) { return assinatura.replace(/^api\./, '').replace(/^GepisegAPI\./, ''); }
+
+  /* ---------- cada cartão ---------- */
+
+  function ligar(op) {
+    const raiz = document.getElementById(op.id);
+    const elCodigo = raiz.querySelector('[data-codigo]');
+    const elJson = raiz.querySelector('[data-json]');
+    const elStatus = raiz.querySelector('[data-status]');
+    const elMeta = raiz.querySelector('[data-meta]');
+    const controles = Array.prototype.slice.call(raiz.querySelectorAll('[data-param]'));
+
+    raiz.querySelector('.cabeca').addEventListener('click', function () {
+      raiz.classList.toggle('aberta');
+    });
+
+    function lerParams() {
+      const f = {};
+      controles.forEach(function (c) {
+        if (c.value === '' || c.value === null) return;
+        f[c.getAttribute('data-param')] = c.value;
+      });
+      return f;
+    }
+
+    /** O que vai para a biblioteca: `ativo` precisa ser booleano de verdade. */
+    function paraChamada(f) {
+      const saida = {};
+      Object.keys(f).forEach(function (k) {
+        saida[k] = f[k] === 'true' ? true : f[k] === 'false' ? false : f[k];
+      });
+      return saida;
+    }
+
+    function atualizarCodigo() { elCodigo.textContent = op.codigo(lerParams()); }
+
+    controles.forEach(function (c) {
+      c.addEventListener('input', atualizarCodigo);
+      c.addEventListener('change', atualizarCodigo);
+    });
+
+    function mostrar(classe, status, corpo, ms, nota) {
+      elStatus.textContent = status;
+      elStatus.className = 'status' + (classe ? ' ' + classe : '');
+      elJson.textContent = JSON.stringify(corpo, null, 2);
+      const partes = [ms + ' ms'];
+      if (corpo && corpo.info) partes.push('count ' + corpo.info.count, 'pages ' + corpo.info.pages);
+      else if (Array.isArray(corpo)) partes.push(corpo.length + ' itens');
+      if (nota) partes.push(nota);
+      elMeta.textContent = partes.join(' · ');
+    }
+
+    raiz.querySelector('[data-exec]').addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      const f = lerParams();
+      const faltando = op.params.filter(function (p) { return p.obrigatorio && !f[p.nome]; });
+      if (faltando.length) {
+        mostrar('ruim', 'faltou', { error: 'preencha: ' + faltando.map(function (p) { return p.nome; }).join(', ') }, 0);
+        return;
+      }
+      atualizarCodigo();
+      const t0 = performance.now();
+      let p;
+      try {
+        p = op.chamar(api, paraChamada(f));
+      } catch (e) {
+        mostrar('ruim', 'erro', { error: e.message }, 0);
+        return;
+      }
+      Promise.resolve(p).then(
+        function (r) { mostrar('', '200', r, Math.round(performance.now() - t0)); },
+        function (e) {
+          mostrar('ruim', String(e.status || 'erro'), e.corpo || { error: e.message },
+            Math.round(performance.now() - t0));
+        }
+      );
+    });
+
+    raiz.querySelector('[data-exemplo]').addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      controles.forEach(function (c) {
+        const nome = c.getAttribute('data-param');
+        c.value = op.exemplo[nome] === undefined ? '' : op.exemplo[nome];
+      });
+      atualizarCodigo();
+      raiz.querySelector('[data-exec]').click();
+    });
+
+    raiz.querySelector('[data-limpar]').addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      controles.forEach(function (c) { c.value = ''; });
+      atualizarCodigo();
+      elJson.textContent = '—';
+      elStatus.textContent = '—';
+      elStatus.className = 'status neutro';
+      elMeta.textContent = 'execute para ver o JSON';
+    });
+
+    raiz.querySelector('[data-copiar]').addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      const btn = ev.currentTarget;
+      navigator.clipboard.writeText(elJson.textContent).then(function () {
+        btn.textContent = 'copiado';
+        setTimeout(function () { btn.textContent = 'Copiar'; }, 1200);
+      }, function () {
+        btn.textContent = 'falhou';
+        setTimeout(function () { btn.textContent = 'Copiar'; }, 1200);
+      });
+    });
+
+    // Download do documento: o JSON exato da resposta, como arquivo.
+    raiz.querySelector('[data-baixar]').addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      const texto = elJson.textContent;
+      if (!texto || texto === '—') return;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([texto], { type: 'application/json;charset=utf-8' }));
+      a.download = 'gepiseg-' + op.id + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+    });
+
+    raiz.querySelector('[data-expandir]').addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      elJson.classList.toggle('alto');
+      ev.currentTarget.textContent = elJson.classList.contains('alto') ? 'Recolher' : 'Expandir';
+    });
+  }
+
+  function preencherSelects() {
+    OPS.forEach(function (op) {
+      op.params.forEach(function (p) {
+        if (p.tipo !== 'select') return;
+        const el = document.getElementById('c-' + op.id + '-' + p.nome);
+        (opcoesFiltro[p.fonte] || []).forEach(function (v) {
+          const o = document.createElement('option');
+          o.value = v;
+          o.textContent = v;
+          el.appendChild(o);
+        });
+      });
+    });
+  }
+
+  /* ---------- barra ---------- */
+
+  document.getElementById('buscaOp').addEventListener('input', function (e) {
+    const termo = e.target.value.trim().toLowerCase();
+    Array.prototype.forEach.call(document.querySelectorAll('#ops .op'), function (el) {
+      const bate = !termo || el.getAttribute('data-busca').indexOf(termo) !== -1;
+      el.classList.toggle('escondido', !bate);
+      if (bate && termo) el.classList.add('aberta');
+    });
+  });
+
+  document.getElementById('abrirTudo').addEventListener('click', function () {
+    Array.prototype.forEach.call(document.querySelectorAll('.op'), function (el) { el.classList.add('aberta'); });
+  });
+  document.getElementById('fecharTudo').addEventListener('click', function () {
+    Array.prototype.forEach.call(document.querySelectorAll('.op'), function (el) { el.classList.remove('aberta'); });
+  });
+
+  document.getElementById('btnPdf').addEventListener('click', function () {
+    Array.prototype.forEach.call(document.querySelectorAll('.op'), function (el) { el.classList.add('aberta'); });
+    window.print();
+  });
+
+  /* ---------- arranque ---------- */
+
+  function erroFatal(msg) {
+    document.getElementById('versao').textContent = 'erro: ' + msg;
+    elOps.innerHTML = '<p class="intro">Dados não carregados. ' + escapar(msg) +
+      ' Esta página espera estar na pasta <code>entrega/</code>, ao lado de <code>js/</code>.</p>';
+  }
+
+  if (typeof GepisegAPI === 'undefined') { erroFatal('GepisegAPI não existe.'); return; }
+
+  try {
+    api = GepisegAPI.criar({ atrasoMs: 0 });
+  } catch (e) {
+    erroFatal(e.message);
+    return;
+  }
+
+  montar();
+
+  api.filtros().then(function (f) {
+    opcoesFiltro = f;
+    preencherSelects();
+  });
+
+  const base = window.GEPISEG_DADOS;
+  document.getElementById('versao').textContent =
+    base.pesquisadores.length + ' pesquisadores · ' + base.artigos.length + ' artigos';
+
+  document.getElementById('esquemaPesquisador').innerHTML = tabelaEsquema(base.pesquisadores[0]);
+  document.getElementById('esquemaArtigo').innerHTML = tabelaEsquema(base.artigos[0]);
+})();
+</script>
+
+</body>
+</html>

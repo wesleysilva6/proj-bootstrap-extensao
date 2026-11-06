@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GEPISEG - Portal de Pesquisa</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-gepiseg sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">GEPISEG</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="menuPrincipal">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" href="#secao-destaques">Destaques</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#secao-artigos">Artigos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#secao-pesquisadores">Pesquisadores</a>
+          </li>
+        </ul>
+        <span class="badge bg-light text-dark" id="nav-instituicao"></span>
+      </div>
+    </div>
+  </nav>
+
+  <header class="py-4 bg-white border-bottom">
+    <div class="container">
+      <h1 class="h3 fw-bold mb-1" id="titulo-unidade"></h1>
+      <p class="text-muted mb-0" id="subtitulo-unidade"></p>
+    </div>
+  </header>
+
+  <main class="container my-4">
+    <section id="secao-destaques" class="mb-5">
+      <h2 class="h4 fw-bold mb-3">Artigos em Destaque</h2>
+      <div id="carouselDestaques" class="carousel slide rounded overflow-hidden" data-bs-ride="carousel">
+        <div class="carousel-inner" id="carousel-itens"></div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselDestaques" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselDestaques" data-bs-slide="next">
+          <span class="carousel-control-next-icon"></span>
+        </button>
+      </div>
+    </section>
+
+    <section id="secao-artigos" class="mb-5">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 fw-bold mb-0">Publicações</h2>
+        <span class="badge bg-secondary" id="contador-artigos"></span>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <form id="form-filtro-artigos" class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label small">Busca</label>
+              <input type="text" id="artigo-q" class="form-control" placeholder="Buscar artigo...">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small">Tema</label>
+              <select id="artigo-tema" class="form-select">
+                <option value="">Todos</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label small">Ano</label>
+              <select id="artigo-ano" class="form-select">
+                <option value="">Todos</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small">Ordenar</label>
+              <select id="artigo-ordenar" class="form-select">
+                <option value="recentes">Mais recentes</option>
+                <option value="antigos">Mais antigos</option>
+                <option value="citacoes">Mais citados</option>
+                <option value="titulo">Título</option>
+              </select>
+            </div>
+            <div class="col-12 text-end">
+              <button type="reset" class="btn btn-outline-secondary btn-sm" id="btn-limpar-artigos">Limpar</button>
+              <button type="submit" class="btn btn-gepiseg btn-sm">Filtrar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div id="alerta-artigos" class="alert alert-warning d-none" role="alert"></div>
+
+      <div class="row g-4" id="lista-artigos"></div>
+
+      <nav class="mt-4">
+        <ul class="pagination justify-content-center" id="paginacao-artigos"></ul>
+      </nav>
+    </section>
+
+    <section id="secao-pesquisadores" class="mb-5">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 fw-bold mb-0">Pesquisadores</h2>
+        <span class="badge bg-secondary" id="contador-pesquisadores"></span>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <form id="form-filtro-pesquisadores" class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label small">Nome ou termo</label>
+              <input type="text" id="pesq-q" class="form-control" placeholder="Buscar pesquisador...">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small">Área</label>
+              <select id="pesq-area" class="form-select">
+                <option value="">Todas</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small">Titulação</label>
+              <select id="pesq-titulacao" class="form-select">
+                <option value="">Todas</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label small">Ordenar</label>
+              <select id="pesq-ordenar" class="form-select">
+                <option value="nome">Nome</option>
+                <option value="artigos">Artigos</option>
+                <option value="citacoes">Citações</option>
+              </select>
+            </div>
+            <div class="col-12 text-end">
+              <button type="reset" class="btn btn-outline-secondary btn-sm" id="btn-limpar-pesquisadores">Limpar</button>
+              <button type="submit" class="btn btn-gepiseg btn-sm">Filtrar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div id="alerta-pesquisadores" class="alert alert-warning d-none" role="alert"></div>
+
+      <div class="row g-4" id="lista-pesquisadores"></div>
+    </section>
+  </main>
+
+  <footer class="bg-dark text-light py-4 mt-5 text-center">
+    <div class="container">
+      <p class="mb-0" id="rodape-texto"></p>
+    </div>
+  </footer>
+
+  <div class="modal fade" id="modalDetalhes" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="modalDetalhesTitulo"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="modalDetalhesCorpo"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/dados.js"></script>
+  <script src="js/gepiseg-api.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    api.pesquisadores.porId(1).then(function (p) {
+      document.getElementById('nav-instituicao').textContent = p.instituicao;
+      document.getElementById('titulo-unidade').textContent = p.unidade;
+      document.getElementById('subtitulo-unidade').textContent = 'Portal de publicações e pesquisadores - ' + p.instituicao;
+      document.getElementById('rodape-texto').textContent = p.unidade + ' - ' + p.instituicao;
+    });
+
+    document.getElementById('form-filtro-artigos').addEventListener('submit', function (e) {
+      e.preventDefault();
+      carregarArtigos(1);
+    });
+
+    document.getElementById('btn-limpar-artigos').addEventListener('click', function () {
+      setTimeout(function () {
+        carregarArtigos(1);
+      }, 50);
+    });
+
+    document.getElementById('form-filtro-pesquisadores').addEventListener('submit', function (e) {
+      e.preventDefault();
+      carregarPesquisadores();
+    });
+
+    document.getElementById('btn-limpar-pesquisadores').addEventListener('click', function () {
+      setTimeout(function () {
+        carregarPesquisadores();
+      }, 50);
+    });
+
+    carregarFiltros();
+    carregarDestaques();
+    carregarArtigos(1);
+    carregarPesquisadores();
+  </script>
+</body>
+</html>
