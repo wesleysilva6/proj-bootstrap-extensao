@@ -176,35 +176,28 @@
   <script src="js/gepiseg-api.js"></script>
   <script src="js/script.js"></script>
   <script>
-    api.pesquisadores.porId(1).then(function (p) {
-      document.getElementById('nav-instituicao').textContent = p.instituicao;
-      document.getElementById('titulo-unidade').textContent = p.unidade;
-      document.getElementById('subtitulo-unidade').textContent = 'Portal de publicações e pesquisadores - ' + p.instituicao;
-      document.getElementById('rodape-texto').textContent = p.unidade + ' - ' + p.instituicao;
-    });
+    const formArtigos = document.getElementById('form-filtro-artigos');
+    const formPesquisadores = document.getElementById('form-filtro-pesquisadores');
 
-    document.getElementById('form-filtro-artigos').addEventListener('submit', function (e) {
-      e.preventDefault();
+    formArtigos.addEventListener('submit', evento => {
+      evento.preventDefault();
       carregarArtigos(1);
     });
 
-    document.getElementById('btn-limpar-artigos').addEventListener('click', function () {
-      setTimeout(function () {
-        carregarArtigos(1);
-      }, 50);
+    formArtigos.addEventListener('reset', () => {
+      setTimeout(() => carregarArtigos(1));
     });
 
-    document.getElementById('form-filtro-pesquisadores').addEventListener('submit', function (e) {
-      e.preventDefault();
+    formPesquisadores.addEventListener('submit', evento => {
+      evento.preventDefault();
       carregarPesquisadores();
     });
 
-    document.getElementById('btn-limpar-pesquisadores').addEventListener('click', function () {
-      setTimeout(function () {
-        carregarPesquisadores();
-      }, 50);
+    formPesquisadores.addEventListener('reset', () => {
+      setTimeout(() => carregarPesquisadores());
     });
 
+    carregarCabecalho();
     carregarFiltros();
     carregarDestaques();
     carregarArtigos(1);
