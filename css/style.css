@@ -41,6 +41,17 @@ body {
   padding: 2rem 3.5rem;
 }
 
+#carouselDestaques .carousel-control-prev,
+#carouselDestaques .carousel-control-next {
+  width: 3rem;
+}
+
+#carouselDestaques .carousel-control-prev-icon,
+#carouselDestaques .carousel-control-next-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
 .card-custom {
   border: 1px solid #e2e6ec;
 }
